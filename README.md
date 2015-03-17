@@ -2,4 +2,4 @@
 
 * website: http://FastEvac.com
 * github: https://github.com/ajwebb/FastEvac.git
-* Twitter: http://twitter.com/FastEvac
+* twitter: http://twitter.com/FastEvac
