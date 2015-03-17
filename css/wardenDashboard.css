@@ -1,0 +1,31 @@
+
+/* alert screen mobileheader */
+.wardenDashboard_mobileheader {
+	border: none!important;
+	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
+}
+/* fastevac_logo 
+.fastevac_logo_header {
+	position: absolute;
+	width: 100px; height: 19px;
+	top: 50%;
+	left: 50%;
+    margin-top: -9px;
+    margin-left: -50px;
+}*/
+.ui-navbar {
+	height: 56px;
+}
+.warden_map:after {
+	background: url("../img/icons/globe.png") 50% 50% no-repeat; 
+	background-size: 24px 22px; 
+}
+.ui-navbar li .ui-btn .ui-btn-inner, .ui-navbar li .ui-btn {
+    border: 1px solid black !important;
+}
+.ui-navbar .ui-btn-active {
+    background: #2ad !important;
+}
+#warden_compass, #warden_personnel, #warden_status {
+	display: none;
+}

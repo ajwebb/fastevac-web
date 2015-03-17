@@ -1,0 +1,50 @@
+
+/* alert screen mobileheader */
+.alertScreen_mobileheader {
+	border: none!important;
+	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
+}
+/* fastevac_logo */
+.fastevac_logo_header {
+	position: absolute;
+	width: 100px; height: 19px;
+	top: 50%;
+	left: 50%;
+    margin-top: -9px;
+    margin-left: -50px;
+}
+/* alert button container  */
+.alertScreen_mobilecontainer {
+	padding: 20px;
+	background-color: transparent;
+	height: 120px;
+	margin: auto;
+  	position: absolute;
+  	top: 0; left: 0; bottom: 0; right: 0;
+}
+/* mobilebutton_alert */
+.alertScreen_mobilebutton_alert {
+	background-image: linear-gradient(#B0BCCD, #889BB3);
+	border: 1px solid transparent!important;
+	font-size: 18px;
+}
+/* alert popup banner */
+.alert_popup_header_container {
+	margin-top: -20px;
+	margin-bottom: -20px;
+}
+/* alert popup text */
+.alert_popup_header {
+	margin: 0 auto!important;
+	width: 100%;
+}
+/* confirm alert */
+.confirm_alert {
+	background: #b95752!important;
+	border-color: #b95752!important;
+}
+/* cancel alert */
+.cancel_alert {
+	background: #166549!important;
+	border-color: #166549!important;
+}
