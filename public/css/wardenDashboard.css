@@ -29,3 +29,31 @@
 #warden_compass, #warden_personnel, #warden_status {
 	display: none;
 }
+.wardenDashboard_mobilecontainer {
+	padding: 0;
+}
+.ui-collapsible {
+	padding: 0!important;
+	border: none!important;
+}
+.ui-collapsible-heading {
+	margin: 0!important;
+}
+.ui-collapsible-content {
+	padding-left: 16px;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-right: 0;
+	background-color: white!important;
+	border: none!important;
+}
+.ui-listview {
+	margin: 0!important;
+}
+#checked_in_list_header a {
+	background-color: #166549!important;
+	border-color: #166549!important;
+}
+.ui-li-count {
+	border: none;
+}

@@ -139,14 +139,48 @@
                     </div>
                 </div>
 
-                <!-- testing content tabs for warden dashboard -->
+                <!-- content tabs for warden dashboard -->
+                <!-- warden map tab -->
                 <div id="warden_map" class="content_div">
                     map page
                 </div>
+
+                <!-- warden compass tab -->
                 <div id="warden_compass" class="content_div">compass page</div>
+
+                <!-- warden personnel tab -->
                 <div id="warden_personnel" class="content_div">
-                    personnel page
+                  <ul data-role="listview" class="ui-listview-outer">
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
+                      <h3>
+                         In Need of Assistance<span class="ui-li-count">1</span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c">
+                         <li><a href="#">Monica Ruzich</a></li>
+                     </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="h">
+                      <h3>
+                         Not Checked In<span class="ui-li-count">1</span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c">
+                         <li><a href="#">Amy Estey</a></li>
+                     </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
+                      <h3 id="checked_in_list_header">
+                         Checked In<span class="ui-li-count">3</span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c">
+                         <li><a href="#">Rebecca O'Rourke</a></li>
+                         <li><a href="#">Barb Casserly</a></li>
+                         <li><a href="#">Marsha McNamara</a></li>
+                     </ul>
+                    </li>
+                  </ul>
                 </div>
+
+                <!-- warden status/broadcast tab/dialog -->
                 <div id="warden_status" class="content_div">status page</div>
 
             </div>
