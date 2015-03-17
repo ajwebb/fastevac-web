@@ -55,21 +55,19 @@ $(function(){
         console.log('warden dashboard');
 
         //testing google maps
-        var mapProp = {
-            center: new google.maps.LatLng(34.052234, -118.243685),
-            zoom:18,
-            panControl:true,
-            zoomControl:true,
-            mapTypeControl:true,
-            scaleControl:true,
-            streetViewControl:true,
-            overviewMapControl:true,
-            rotateControl:true,    
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(document.getElementById("map_canvas"),mapProp);
-
-        
+        // var mapProp = {
+        //     center: new google.maps.LatLng(34.052234, -118.243685),
+        //     zoom:18,
+        //     panControl:true,
+        //     zoomControl:true,
+        //     mapTypeControl:true,
+        //     scaleControl:true,
+        //     streetViewControl:true,
+        //     overviewMapControl:true,
+        //     rotateControl:true,    
+        //     mapTypeId: google.maps.MapTypeId.ROADMAP
+        // };
+        // var map = new google.maps.Map(document.getElementById("map_canvas"),mapProp);
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event)
