@@ -2,41 +2,93 @@
  * JS for app 
  */
 
-function ValidateLoginCredentials() {
-    validLogin = false;
-    isWarden = false;
+var Module = (function () {
 
-    //todo - authenticate properly
-    validLogin = true;
-    isWarden = true;
+    var id, name, wardenFlag, status, companyId, companyName, companyStatus;
+    var evacCoordinates = [];
+    var employees = [];
 
-    if (validLogin) {
-        if (isWarden) {
-            $.mobile.changePage('#alertScreen');
+    // employee object for warden
+    function Employee(id, name, status) {
+        this.id = id;
+        this.name = name;
+        this.status = status;
+    };
+
+    var getUserDetails = function () {
+        // private, todo - call database to get details
+        id = 1;
+        name = 'Adam Webb';
+        wardenFlag = 'Y';
+        status = 0; // 0 = normal
+        companyId = 1;
+        companyName = 'FastEvac';
+        companyStatus = 0; // 0 = normal
+        evacCoordinates[0] = 33.750125;
+        evacCoordinates[1] = -117.837933;
+    };
+
+    var validateLoginCredentials = function () {
+        var validLogin = false;
+
+        // todo - get user details from db and authenticate properly
+        getUserDetails();
+        validLogin = true;
+
+        if (validLogin) {
+            if (wardenFlag == 'Y') {
+                // todo - initiate employee lists for evac coordinator
+                $.mobile.changePage('#alertScreen');
+            }
+            else {
+                //$.mobile.changePage('employeeMap');
+            }
         }
         else {
-            //$.mobile.changePage('employeeMap');
+            alert('Invalid Login Credentials');
         }
+
+    };
+
+    var triggerAlert = function () {
+        //todo - initiate alert for all employees
+        companyStatus = 1; // 1 = alert
+        status = 2; //  2 = not checked in
+        $.mobile.changePage('#wardenDashboard');
+    };
+
+    var setStaticMap = function() {
+        var w = $(document).width();
+        var h = $(document).height();
+        if (h > 104) {
+            h = h - 104;
+        }
+        else {
+            h = 0;
+        }
+        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + evacCoordinates[0] + ',' + evacCoordinates[1] + '&zoom=19&size=' + w + 'x' + h;
+        $('#static_map_img_warden').attr('src', mapImageURL);
+    };
+
+    var getEvacCoordinates = function() {
+        return evacCoordinates;
     }
-    else {
-        alert('Invalid Login Credentials');
-    }
-};
+  
+    return {
+        getEvacCoordinates: getEvacCoordinates,
+        validateLoginCredentials: validateLoginCredentials,
+        triggerAlert: triggerAlert,
+        setStaticMap: setStaticMap
+    };
 
-
-function TriggerAlert() {
-    //todo - initiate alert for all employees
-    //todo - set current status for employee group to alert
-     $.mobile.changePage('#wardenDashboard');
-};
-
+})();
 
 $(function(){
     // create event for submitting login form
     $("form").submit(function (event) {
         event.stopPropagation();
         event.preventDefault();
-        ValidateLoginCredentials();
+        Module.validateLoginCredentials();
     });
 
     // navigating to alert page for the first time, create events for initiating evacuation
@@ -46,7 +98,7 @@ $(function(){
     		console.log('confirmed alert');
 	        event.stopPropagation();
 	        event.preventDefault();
-            TriggerAlert();
+            Module.triggerAlert();
 	    });
     });
 
@@ -54,20 +106,12 @@ $(function(){
     $(document).on('pagecreate', '#wardenDashboard', function(){
         console.log('warden dashboard');
 
-        //testing google maps
-        // var mapProp = {
-        //     center: new google.maps.LatLng(34.052234, -118.243685),
-        //     zoom:18,
-        //     panControl:true,
-        //     zoomControl:true,
-        //     mapTypeControl:true,
-        //     scaleControl:true,
-        //     streetViewControl:true,
-        //     overviewMapControl:true,
-        //     rotateControl:true,    
-        //     mapTypeId: google.maps.MapTypeId.ROADMAP
-        // };
-        // var map = new google.maps.Map(document.getElementById("map_canvas"),mapProp);
+        // define google maps img src, todo - add logic for image tailored to specific user
+        Module.setStaticMap();
+
+        // BEGIN testing compass
+        Compass.initCompass();
+        // END testing compass
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event)
