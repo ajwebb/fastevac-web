@@ -139,6 +139,12 @@ $(function(){
         });
     });
 
+    // click broadcast message popup, focus textarea
+    $(document).on('pageshow', '#broadcast_popup', function(){
+        console.log('broadcast message');
+        $('#textarea').focus();
+    });
+
     // BEGIN TESTING SECTION
     // END TESTING SECTION
 });

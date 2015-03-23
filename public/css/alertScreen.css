@@ -48,3 +48,7 @@
 	background: #166549!important;
 	border-color: #166549!important;
 }
+/* alert popup message */
+.alert_popup_msg {
+	text-align: center;
+}

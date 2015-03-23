@@ -1,0 +1,54 @@
+
+/* alert screen mobileheader */
+.broadcast_dialog_header {
+	border: none!important;
+	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
+}
+/* broadcast header cancel button */
+.broadcast_dialog_header a {
+	background: transparent!important;
+	border: none!important;
+}
+/* broadcast textarea */
+.broadcast_txtarea {
+	margin-bottom: 15px;
+}
+/* broadcast_button */
+.send_message {
+	display: block;
+	padding-left: 0;
+	padding-right: 0;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	font-size: 18px;
+	font-weight: bolder;
+	color: #333!important;
+	line-height: 1.33;
+	margin: 0 auto;
+	text-align: center;
+	white-space: nowrap;
+	background-image: linear-gradient(#B0BCCD, #889BB3)!important;
+	border-color: transparent!important;
+	border: 1px solid transparent!important;
+	cursor: pointer;
+	text-shadow: none!important;
+}
+/* broadcast radio button option */
+.broadcast_radio {
+	margin-bottom: 15px!important;
+}
+.broadcast_radio .ui-controlgroup-controls {
+	width: 100%;
+}
+.broadcast_radio .ui-radio {
+	width: 50%;
+}
+.broadcast_radio_label {
+	text-align: center!important;
+	font-size: 14px!important;
+	white-space: nowrap!important;
+	overflow: hidden!important;
+}
+.broadcast_radio .ui-btn-active {
+	background: #2ad !important;
+}

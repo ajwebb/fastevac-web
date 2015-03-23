@@ -49,6 +49,7 @@
         <link rel="stylesheet" href="css/loginScreen.css">
         <link rel="stylesheet" href="css/alertScreen.css">
         <link rel="stylesheet" href="css/wardenDashboard.css">
+        <link rel="stylesheet" href="css/statusScreen.css">
 
         <script src="js/vendor/modernizr-2.7.1.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
@@ -111,7 +112,7 @@
                     <h1 class="alert_popup_header">Initiate Evacuation?</h1>
                     </div>
                     <div role="main" class="ui-content">
-                        <h3 class="ui-title">Alert all employees to evacuate</h3>
+                        <h3 class="alert_popup_msg ui-title">Alert all employees to evacuate</h3>
                         <a href="#" class="cancel_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
                         <a href="#" class="confirm_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Evacuate</a>
                     </div>
@@ -135,7 +136,7 @@
                             <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="custom">Map</a></li>
                             <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
                             <li><a href="#" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
-                            <li><a href="#" data-href="warden_status" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                            <li><a href="#broadcast_popup" data-href="warden_status" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
                          </ul>
                     </div>
                 </div>
@@ -167,19 +168,10 @@
                     </li>
                     <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="h">
                       <h3>
-                         Not Checked In<span class="ui-li-count">10</span>
+                         Not Checked In<span class="ui-li-count">1</span>
                      </h3>
                      <ul data-role="listview" data-inset="true" data-theme="c">
                          <li><a href="#">Amy Estey</a></li>
-                         <li><a href="#">Rebecca O'Rourke</a></li>
-                         <li><a href="#">Barb Casserly</a></li>
-                         <li><a href="#">Marsha McNamara</a></li>
-                         <li><a href="#">Rebecca O'Rourke</a></li>
-                         <li><a href="#">Barb Casserly</a></li>
-                         <li><a href="#">Marsha McNamara</a></li>
-                         <li><a href="#">Rebecca O'Rourke</a></li>
-                         <li><a href="#">Barb Casserly</a></li>
-                         <li><a href="#">Marsha McNamara</a></li>
                      </ul>
                     </li>
                     <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
@@ -187,19 +179,43 @@
                          Checked In<span class="ui-li-count">3</span>
                      </h3>
                      <ul data-role="listview" data-inset="true" data-theme="c">
-                         <li><a href="#">Rebecca O'Rourke</a></li>
+                         <!--<li><a href="#">Rebecca O'Rourke</a></li>
                          <li><a href="#">Barb Casserly</a></li>
-                         <li><a href="#">Marsha McNamara</a></li>
+                         <li><a href="#">Marsha McNamara</a></li>-->
+                         <li><a href="#">Brando McCune</a></li>
+                         <li><a href="#">Scott Huthmacher</a></li>
+                         <li><a href="#">Adam Webb</a></li>
                      </ul>
                     </li>
                   </ul>
                 </div>
 
                 <!-- warden status/broadcast tab/dialog -->
-                <div id="warden_status_content" class="content_div">status page</div>
+                <div id="warden_status_content" class="content_div">
+                </div>
 
             </div>
         </div>
+
+        <!-- Start of broadcast dialog popup page -->
+        <div data-role="page" id="broadcast_popup">
+            <!-- /header -->
+            <div data-role="header" class="broadcast_dialog_header" >
+                <a role="button" href="#" data-direction="reverse" data-rel="back" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left">close</a>
+                <h1>Broadcast</h1>
+            </div>
+            <!-- /content -->
+            <div role="main" class="ui-content">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="broadcast_radio">
+                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="on" checked="checked">
+                    <label for="radio-choice-h-2a" class="broadcast_radio_label">All Employees</label>
+                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="off">
+                    <label for="radio-choice-h-2b" class="broadcast_radio_label">Evac Coordinators</label>
+                </fieldset>
+                <textarea name="textarea" id="textarea" class="broadcast_txtarea"></textarea>
+                <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Send</a>
+            </div>
+        </div><!-- /page popup -->
 
         <script src="js/main.js"></script>
         <script src="js/helper.js"></script>

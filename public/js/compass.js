@@ -47,7 +47,7 @@
         console.log('successfully logged coordinates');
 
         // google maps api distance in json
-        if (rendezvouLat !== 'undefined' && rendezvouLong !== 'undefined') {
+        if (rendezvousLat !== 'undefined' && rendezvousLong !== 'undefined') {
         	var distanceUrl = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins' + position.coords.latitude + ',' + position.coords.longitude + '&destinations=' + rendezvousLat + ',' + rendezvousLong;
         }
     };
