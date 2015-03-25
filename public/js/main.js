@@ -5,7 +5,7 @@
 var Module = (function () {
 
     var id, name, wardenFlag, status, companyId, companyName, companyStatus;
-    var evacCoordinates = [];
+    var mapCoordinates = [];
     var employees = [];
 
     // employee object for warden
@@ -13,6 +13,12 @@ var Module = (function () {
         this.id = id;
         this.name = name;
         this.status = status;
+    };
+
+    // map coordinates object
+    function Coordinates(longitude, latitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
     };
 
     var getUserDetails = function () {
@@ -24,8 +30,10 @@ var Module = (function () {
         companyId = 1;
         companyName = 'FastEvac';
         companyStatus = 0; // 0 = normal
-        evacCoordinates[0] = 33.750125;
-        evacCoordinates[1] = -117.837933;
+        var coords = new Coordinates(33.750125, -117.837933); // create faciility coordinates
+        mapCoordinates.push(coords);
+        coords = new Coordinates(33.750411, -117.838235); // create evac pt 1 coordinates
+        mapCoordinates.push(coords);
     };
 
     var validateLoginCredentials = function () {
@@ -60,22 +68,32 @@ var Module = (function () {
     var setStaticMap = function() {
         var w = $(document).width();
         var h = $(document).height();
+        var z = 19;
+        var s = 1;
         if (h > 104) {
             h = h - 104;
         }
-        else {
-            h = 0;
+        if (w > 640 || h > 640) {
+            if (w % 2 == 0) {
+                w = w/2;
+            }
+            else {
+                w = (w-1)/2;
+            }
+            if (h % 2 == 0) {
+                h = h/2;
+            }
+            else {
+                h = (h-1)/2;
+            }
+            z = 18;
+            s = 2;
         }
-        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + evacCoordinates[0] + ',' + evacCoordinates[1] + '&zoom=19&size=' + w + 'x' + h;
+        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].longitude + ',' + mapCoordinates[0].latitude + '&markers=color:green|' + mapCoordinates[1].longitude + ',' + mapCoordinates[1].latitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
-
-    var getEvacCoordinates = function() {
-        return evacCoordinates;
-    }
   
     return {
-        getEvacCoordinates: getEvacCoordinates,
         validateLoginCredentials: validateLoginCredentials,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap
@@ -109,9 +127,11 @@ $(function(){
         // define google maps img src, todo - add logic for image tailored to specific user
         Module.setStaticMap();
 
-        // BEGIN testing compass
+        // need to resize map on device orientation change
+        $( window ).on( "throttledresize", Module.setStaticMap );
+
+        // initialize compass
         Compass.initCompass();
-        // END testing compass
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event)
