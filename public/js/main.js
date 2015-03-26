@@ -34,6 +34,8 @@ var Module = (function () {
         mapCoordinates.push(coords);
         coords = new Coordinates(33.750411, -117.838235); // create evac pt 1 coordinates
         mapCoordinates.push(coords);
+        // todo - wrap session storage in a function to accomodate not supporting it
+        sessionStorage.setItem('mapCoords', JSON.stringify(mapCoordinates));
     };
 
     var validateLoginCredentials = function () {
@@ -89,6 +91,7 @@ var Module = (function () {
             z = 18;
             s = 2;
         }
+        mapCoordinates = JSON.parse(sessionStorage['mapCoords']);
         var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].longitude + ',' + mapCoordinates[0].latitude + '&markers=color:green|' + mapCoordinates[1].longitude + ',' + mapCoordinates[1].latitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
@@ -156,6 +159,24 @@ $(function(){
 
         $(document).on('click', '.warden_status', function(event) {
             console.log('navigated to broadcast');
+        });
+
+        // sends broadcast, show map tab, todo - should show last visited tab
+        $(document).on('click', '.send_message', function(event)
+        {
+            // todo - send message to employees
+            console.log('broadcast sent');
+            $('.content_div').hide();
+            $('#' + 'warden_map_content').show();
+        });
+
+        // cancels broadcast, show map tab, todo - should show last visited tab
+        $(document).on('click', '.cancel_broadcast', function(event)
+        {
+            // todo - send message to employees
+            console.log('broadcast canceled');
+            $('.content_div').hide();
+            $('#' + 'warden_map_content').show();
         });
     });
 
