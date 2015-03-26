@@ -121,22 +121,29 @@
         </div>
 
         <!-- warden dashboard map page -->
-        <div data-role="page" id="wardenDashboard" class="type-interior">
+        <div data-role="page" id="userDashboard" class="type-interior">
             <!-- main content for warden -->
-            <div data-role="content" class="wardenDashboard_mobilecontainer">
+            <div data-role="content" class="userDashboard_mobilecontainer">
                 <!-- header -->
-                <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back" class="wardenDashboard_mobileheader" data-theme="c">
+                <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back" class="userDashboard_mobileheader" data-theme="c">
                     <h1>&nbsp;</h1>
                     <img class="fastevac_logo_header" src="img/logo_design_1_prototype.png"/>
                 </div>
                 <!-- warden navbar -->
                 <div data-role="footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar">
+                    <div data-role="navbar" id="warden_navbar">
                         <ul>
                             <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="custom">Map</a></li>
                             <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
                             <li><a href="#" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
                             <li><a href="#broadcast_popup" data-href="warden_status" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                         </ul>
+                    </div>
+                    <div data-role="navbar" id="employee_navbar">
+                        <ul>
+                            <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="custom">Map</a></li>
+                            <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="comment">Status</a></li>
                          </ul>
                     </div>
                 </div>

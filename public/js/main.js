@@ -4,7 +4,8 @@
 
 var Module = (function () {
 
-    var id, name, wardenFlag, status, companyId, companyName, companyStatus;
+    var id, name, status, companyId, companyName, companyStatus;
+    var wardenFlag = false;
     var mapCoordinates = [];
     var employees = [];
 
@@ -21,11 +22,21 @@ var Module = (function () {
         this.latitude = latitude;
     };
 
+    // determine warden status
+    function isCurrentUserWarden() {
+        if (wardenFlag == null || wardenFlag === false) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     var getUserDetails = function () {
         // private, todo - call database to get details
         id = 1;
         name = 'Adam Webb';
-        wardenFlag = 'Y';
+        wardenFlag = true;
         status = 0; // 0 = normal
         companyId = 1;
         companyName = 'FastEvac';
@@ -46,12 +57,12 @@ var Module = (function () {
         validLogin = true;
 
         if (validLogin) {
-            if (wardenFlag == 'Y') {
+            if (wardenFlag) {
                 // todo - initiate employee lists for evac coordinator
                 $.mobile.changePage('#alertScreen');
             }
             else {
-                //$.mobile.changePage('employeeMap');
+                $.mobile.changePage('#userDashboard');
             }
         }
         else {
@@ -64,7 +75,7 @@ var Module = (function () {
         //todo - initiate alert for all employees
         companyStatus = 1; // 1 = alert
         status = 2; //  2 = not checked in
-        $.mobile.changePage('#wardenDashboard');
+        $.mobile.changePage('#userDashboard');
     };
 
     var setStaticMap = function() {
@@ -99,7 +110,8 @@ var Module = (function () {
     return {
         validateLoginCredentials: validateLoginCredentials,
         triggerAlert: triggerAlert,
-        setStaticMap: setStaticMap
+        setStaticMap: setStaticMap,
+        isCurrentUserWarden: isCurrentUserWarden
     };
 
 })();
@@ -124,8 +136,18 @@ $(function(){
     });
 
     // navigating to main warden page, initialize events for using the navbar
-    $(document).on('pagecreate', '#wardenDashboard', function(){
-        console.log('warden dashboard');
+    $(document).on('pagecreate', '#userDashboard', function(){
+        console.log('user dashboard');
+
+        // show correct navbar depending if warden or regular employee
+        if (Module.isCurrentUserWarden()) {
+            $('#employee_navbar').hide();
+            $('#warden_navbar').show();
+        }
+        else {
+            $('#warden_navbar').hide();
+            $('#employee_navbar').show();
+        }
 
         // define google maps img src, todo - add logic for image tailored to specific user
         Module.setStaticMap();
@@ -173,7 +195,6 @@ $(function(){
         // cancels broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.cancel_broadcast', function(event)
         {
-            // todo - send message to employees
             console.log('broadcast canceled');
             $('.content_div').hide();
             $('#' + 'warden_map_content').show();

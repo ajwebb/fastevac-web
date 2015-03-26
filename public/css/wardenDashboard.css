@@ -1,6 +1,6 @@
 
 /* alert screen mobileheader */
-.wardenDashboard_mobileheader {
+.userDashboard_mobileheader {
 	border: none!important;
 	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
 }
@@ -40,7 +40,7 @@
 #warden_compass_content, #warden_personnel_content, #warden_status_content {
 	display: none;
 }
-.wardenDashboard_mobilecontainer {
+.userDashboard_mobilecontainer {
 	padding: 0;
 }
 .ui-collapsible {
