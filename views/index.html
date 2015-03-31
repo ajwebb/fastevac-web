@@ -55,6 +55,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
         <script src="js/vendor/knockout-latest.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
     </head>
     <body>
 
@@ -158,8 +159,9 @@
 
                 <!-- warden compass tab -->
                 <div id="warden_compass_content" class="content_div">
-                    <div class="n">N<br><br><br>S</div>
+                    <!--<div class="n">N<br><br><br>S</div>-->
                     <div class="pointer"></div>
+                    <div class="distance_container"><p class="compass_distance"></p></div>
                 </div>
 
                 <!-- warden personnel tab -->

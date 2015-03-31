@@ -17,9 +17,9 @@ var Module = (function () {
     };
 
     // map coordinates object
-    function Coordinates(longitude, latitude) {
-        this.longitude = longitude;
+    function Coordinates(latitude, longitude) {
         this.latitude = latitude;
+        this.longitude = longitude;
     };
 
     // determine warden status
@@ -72,7 +72,7 @@ var Module = (function () {
     };
 
     var triggerAlert = function () {
-        //todo - initiate alert for all employees
+        //todo - initiate alert for all employees (send push notifications or messages out)
         companyStatus = 1; // 1 = alert
         status = 2; //  2 = not checked in
         $.mobile.changePage('#userDashboard');
@@ -103,7 +103,7 @@ var Module = (function () {
             s = 2;
         }
         mapCoordinates = JSON.parse(sessionStorage['mapCoords']);
-        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].longitude + ',' + mapCoordinates[0].latitude + '&markers=color:green|' + mapCoordinates[1].longitude + ',' + mapCoordinates[1].latitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
+        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude + '&markers=color:green|' + mapCoordinates[1].latitude + ',' + mapCoordinates[1].longitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
   
