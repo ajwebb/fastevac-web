@@ -24,6 +24,7 @@ var Module = (function () {
 
     // determine warden status
     function isCurrentUserWarden() {
+        wardenFlag = sessionStorage.getItem('wardenFlag');
         if (wardenFlag == null || wardenFlag === false) {
             return false;
         }
@@ -47,6 +48,7 @@ var Module = (function () {
         mapCoordinates.push(coords);
         // todo - wrap session storage in a function to accomodate not supporting it
         sessionStorage.setItem('mapCoords', JSON.stringify(mapCoordinates));
+        sessionStorage.setItem('wardenFlag', wardenFlag);
     };
 
     var validateLoginCredentials = function () {

@@ -34,13 +34,26 @@
         $(".pointer").css({ "transform": "rotate(" + deg + "deg)"});
     };
 
-    var getLocation = function() {
+    var geoOptions = {
+        enableHighAccuracy: true, 
+        maximumAge        : 30000, 
+        timeout           : 27000
+    };
+
+    function geoError() {
+        alert("Sorry, no position available.");
+    }
+
+    function getLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(watchPosition);
+            navigator.geolocation.watchPosition(watchPosition, geoError, geoOptions);
+        }
+        else {
+            alert('Sorry, browser does not allow geolocation');
         }
     };
 
-    var watchPosition = function(position) {
+    function watchPosition(position) {
         console.log(position.coords.latitude); 
         console.log(position.coords.longitude); 
         console.log('successfully logged coordinates');
