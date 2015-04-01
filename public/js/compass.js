@@ -58,34 +58,29 @@
         console.log(position.coords.longitude); 
         console.log('successfully logged coordinates');
 
+        var txtDistance;
+
         // get current users rendezvous coordinates
         rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
 
         var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
-        var service = new google.maps.DistanceMatrixService();
-        service.getDistanceMatrix(
-        {
-            origins: [currentLocation],
-            destinations: [evacPt],
-            travelMode: google.maps.TravelMode.WALKING,
-            unitSystem: google.maps.UnitSystem.IMPERIAL
-        }, callback);
-    };
-
-    function callback(response, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-            alert('Error was: ' + status);
-        } 
-        else {
-            for (var i = 0; i < response.rows.length; i++) {
-                var results = response.rows[i].elements;
-                distance = results[i].distance.text;
-                $('.compass_distance').text(distance);
-            }
+        var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
+        distance = distance * 3.28084; //convert from meters to feet
+        if (distance > 2640) {
+            distance = distance / 5280;
+            distance = Math.round( distance * 10 ) / 10;
+            txtDistance = distance + ' mi';
         }
-    }
+        else {
+            distance = Math.round(distance);
+            txtDistance = distance + ' ft';
+        }
+        console.log(distance);
+
+        $('.compass_distance').text(txtDistance);
+    };
 
     return {
     	initCompass: initCompass
