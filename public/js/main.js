@@ -7,13 +7,83 @@ var Module = (function () {
     var id, name, status, companyId, companyName, companyStatus;
     var wardenFlag = false;
     var mapCoordinates = [];
-    var employees = [];
 
-    // employee object for warden
-    function Employee(id, name, status) {
-        this.id = id;
-        this.name = name;
-        this.status = status;
+    // testing json notation for list of employees, todo - get data from database and parse as json object
+    var jsonData = {
+        "employees":
+        [
+            {
+                "id": 1,
+                "name": "Monica Ruzich",
+                "status": 2
+            },
+            {
+                "id": 6,
+                "name": "Daniel Lifschitz",
+                "status": 0
+            },
+            {
+                "id": 2,
+                "name": "Amy Estey",
+                "status": 0
+            },
+            {
+                "id": 3,
+                "name": "Brando McCune",
+                "status": 1
+            },
+            {
+                "id": 4,
+                "name": "Scott Huthmacher",
+                "status": 1
+            },
+            {
+                "id": 5,
+                "name": "Adam Webb",
+                "status": 1
+            }
+        ]
+    };
+
+    // get all employees current info and status, update lists
+    function updatePersonnelInfo() {
+        var employees = jsonData.employees;
+
+        var needAssistanceInner = '';
+        var notCheckedInInner = '';
+        var checkedInInner = '';
+
+        var needAssistanceCounter = 0;
+        var notCheckedInCounter = 0;
+        var checkedInCounter = 0;
+
+        for (i=0; i<employees.length; i++) {
+            switch (employees[i].status) {
+                case 1:
+                    checkedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+                    checkedInCounter++;
+                    break;
+                case 2:
+                    needAssistanceInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+                    needAssistanceCounter++;
+                    break;
+                default:
+                    notCheckedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+                    notCheckedInCounter++;
+                    break;
+            }
+        };
+
+        $('#need_assistance_counter').text(needAssistanceCounter);
+        $('#not_checked_in_counter').text(notCheckedInCounter);
+        $('#checked_in_counter').text(checkedInCounter);
+
+        $('#need_assistance_employees').html(needAssistanceInner);
+        $('#not_checked_in_employees').html(notCheckedInInner);
+        $('#checked_in_employees').html(checkedInInner);
+        $('#need_assistance_employees').listview('refresh');
+        $('#not_checked_in_employees').listview('refresh');
+        $('#checked_in_employees').listview('refresh');
     };
 
     // map coordinates object
@@ -22,7 +92,7 @@ var Module = (function () {
         this.longitude = longitude;
     };
 
-    // determine warden status
+    // determine if user is evac coordinator
     function isCurrentUserWarden() {
         wardenFlag = sessionStorage.getItem('wardenFlag');
         if (wardenFlag == null || wardenFlag === false) {
@@ -34,11 +104,11 @@ var Module = (function () {
     }
 
     var getUserDetails = function () {
-        // private, todo - call database to get details
+        // private func, todo - call database to get details
         id = 1;
         name = 'Adam Webb';
         wardenFlag = true;
-        status = 0; // 0 = normal
+        status = 0; // 0 = normal/not checked in
         companyId = 1;
         companyName = 'FastEvac';
         companyStatus = 0; // 0 = normal
@@ -76,7 +146,6 @@ var Module = (function () {
     var triggerAlert = function () {
         //todo - initiate alert for all employees (send push notifications or messages out)
         companyStatus = 1; // 1 = alert
-        status = 2; //  2 = not checked in
         $.mobile.changePage('#userDashboard');
     };
 
@@ -113,7 +182,8 @@ var Module = (function () {
         validateLoginCredentials: validateLoginCredentials,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
-        isCurrentUserWarden: isCurrentUserWarden
+        isCurrentUserWarden: isCurrentUserWarden,
+        updatePersonnelInfo: updatePersonnelInfo
     };
 
 })();
@@ -159,6 +229,9 @@ $(function(){
 
         // initialize compass
         Compass.initCompass();
+
+        // add employees to corresponding lists on personnel page
+        Module.updatePersonnelInfo();
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event)
