@@ -95,12 +95,12 @@ var Module = (function () {
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
         wardenFlag = sessionStorage.getItem('wardenFlag');
-        if (wardenFlag == null || wardenFlag === false) {
-            return false;
+        if (typeof wardenFlag !== 'undefined') {
+            if (wardenFlag == true || wardenFlag === 'true') {
+                return true;
+            }
         }
-        else {
-            return true;
-        }
+        return false;
     }
 
     var getUserDetails = function () {
@@ -215,6 +215,9 @@ $(function(){
         if (Module.isCurrentUserWarden()) {
             $('#employee_navbar').hide();
             $('#warden_navbar').show();
+
+            // add employees to corresponding lists on personnel page
+            Module.updatePersonnelInfo();
         }
         else {
             $('#warden_navbar').hide();
@@ -229,9 +232,6 @@ $(function(){
 
         // initialize compass
         Compass.initCompass();
-
-        // add employees to corresponding lists on personnel page
-        Module.updatePersonnelInfo();
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event)
@@ -256,6 +256,10 @@ $(function(){
 
         $(document).on('click', '.warden_status', function(event) {
             console.log('navigated to broadcast');
+        });
+
+        $(document).on('click', '.employee_status', function(event) {
+            console.log('navigated to employee status page');
         });
 
         // sends broadcast, show map tab, todo - should show last visited tab
