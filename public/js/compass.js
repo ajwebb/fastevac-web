@@ -74,6 +74,10 @@
             txtDistance = distance + ' mi';
         }
         else {
+            if (distance < 25) {
+                // automatic checkin occurs
+                Module.updateStatus(1);
+            };
             distance = Math.round(distance);
             txtDistance = distance + ' ft';
         }

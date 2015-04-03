@@ -4,11 +4,11 @@
 
 var Module = (function () {
 
-    var id, name, status, companyId, companyName, companyStatus;
+    var id, name, currentStatus, companyId, companyName, companyStatus;
     var wardenFlag = false;
     var mapCoordinates = [];
 
-    // testing json notation for list of employees, todo - get data from database and parse as json object
+    // json for list of employees, todo - get data from database and parse as json object
     var jsonData = {
         "employees":
         [
@@ -45,7 +45,29 @@ var Module = (function () {
         ]
     };
 
-    // get all employees current info and status, update lists
+    // json data for current user
+    var currentUserJsonData = {
+        "id": 111111,
+        "name": "Adam Webb",
+        "status": 0,
+        "wardenFlag": true,
+        "companyId": 111111,
+        "companyName": "FastEvac",
+        "companyStatus": 0,
+        "coordinates":
+        [
+            {
+                "latitude": 33.750125,
+                "longitude": -117.837933
+            },
+            {
+                "latitude": 33.750411,
+                "longitude": -117.838235
+            }
+        ]
+    };
+
+    // get all employees current info and status, update lists, for evac coordinator only
     function updatePersonnelInfo() {
         var employees = jsonData.employees;
 
@@ -104,19 +126,22 @@ var Module = (function () {
     }
 
     var getUserDetails = function () {
-        // private func, todo - call database to get details
-        id = 1;
-        name = 'Adam Webb';
-        wardenFlag = true;
-        status = 0; // 0 = normal/not checked in
-        companyId = 1;
-        companyName = 'FastEvac';
-        companyStatus = 0; // 0 = normal
-        var coords = new Coordinates(33.750125, -117.837933); // create faciility coordinates
-        mapCoordinates.push(coords);
-        coords = new Coordinates(33.750411, -117.838235); // create evac pt 1 coordinates
-        mapCoordinates.push(coords);
-        // todo - wrap session storage in a function to accomodate not supporting it
+        // get data from json object, todo - create json object from data in database
+        id = currentUserJsonData.id;
+        name = currentUserJsonData.name;
+        wardenFlag = currentUserJsonData.wardenFlag;
+        companyId = currentUserJsonData.companyId;
+        companyName = currentUserJsonData.companyName;
+        companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert
+        currentStatus = currentUserJsonData.status;
+
+        // get map coordinates for facility/evac pts, facility being first, and evac points following
+        for (i=0; i<currentUserJsonData.coordinates.length; i++) {
+            var coords = new Coordinates(currentUserJsonData.coordinates[i].latitude, currentUserJsonData.coordinates[i].longitude)
+            mapCoordinates.push(coords);
+        };
+
+        sessionStorage.setItem('currentStatus', currentStatus);
         sessionStorage.setItem('mapCoords', JSON.stringify(mapCoordinates));
         sessionStorage.setItem('wardenFlag', wardenFlag);
     };
@@ -177,13 +202,21 @@ var Module = (function () {
         var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude + '&markers=color:green|' + mapCoordinates[1].latitude + ',' + mapCoordinates[1].longitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
+
+    var updateStatus = function(updatedStatus) {
+        // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
+        currentStatus = updatedStatus;
+        sessionStorage.setItem('currentStatus', currentStatus);
+        // todo - update db with updated status
+    };
   
     return {
         validateLoginCredentials: validateLoginCredentials,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
         isCurrentUserWarden: isCurrentUserWarden,
-        updatePersonnelInfo: updatePersonnelInfo
+        updatePersonnelInfo: updatePersonnelInfo,
+        updateStatus: updateStatus
     };
 
 })();
@@ -224,7 +257,6 @@ $(function(){
             $('#employee_navbar').show();
         }
 
-        // define google maps img src, todo - add logic for image tailored to specific user
         Module.setStaticMap();
 
         // need to resize map on device orientation change
