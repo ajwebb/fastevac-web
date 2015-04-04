@@ -132,7 +132,7 @@ var Module = (function () {
         wardenFlag = currentUserJsonData.wardenFlag;
         companyId = currentUserJsonData.companyId;
         companyName = currentUserJsonData.companyName;
-        companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert
+        companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
         currentStatus = currentUserJsonData.status;
 
         // get map coordinates for facility/evac pts, facility being first, and evac points following
@@ -203,11 +203,42 @@ var Module = (function () {
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
 
+    var getStatusInfo = function() {
+        var companyStatusTxt;
+        var userStatusTxt;
+
+        if (companyStatus == 1) {
+            companyStatusTxt = 'Evacuate Facility';
+        }
+        else if (companyStatus == 2) {
+            companyStatusTxt = 'Evacuate Facility (Drill)';
+        }
+        else {
+            companyStatusTxt = 'Safe';
+        }
+
+        currentStatus = sessionStorage.getItem('currentStatus');
+        if (currentStatus == 1) {
+            userStatusTxt = 'Checked In';
+        }
+        else if (currentStatus == 2) {
+            userStatusTxt = 'In Need of Assistance';
+        }
+        else {
+            userStatusTxt = 'Not Checked In';
+        }
+
+        $('.evacuation_status_txt').text(companyStatusTxt);
+        $('.current_status_txt').text(userStatusTxt);
+    };
+
     var updateStatus = function(updatedStatus) {
         // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
         currentStatus = updatedStatus;
         sessionStorage.setItem('currentStatus', currentStatus);
         // todo - update db with updated status
+
+        getStatusInfo();
     };
   
     return {
@@ -216,7 +247,8 @@ var Module = (function () {
         setStaticMap: setStaticMap,
         isCurrentUserWarden: isCurrentUserWarden,
         updatePersonnelInfo: updatePersonnelInfo,
-        updateStatus: updateStatus
+        updateStatus: updateStatus,
+        getStatusInfo: getStatusInfo
     };
 
 })();
@@ -255,6 +287,9 @@ $(function(){
         else {
             $('#warden_navbar').hide();
             $('#employee_navbar').show();
+
+            // set current evacuation procedure and user status
+            Module.getStatusInfo();
         }
 
         Module.setStaticMap();
@@ -286,10 +321,6 @@ $(function(){
             console.log('navigated to personnel');
         });
 
-        $(document).on('click', '.warden_status', function(event) {
-            console.log('navigated to broadcast');
-        });
-
         $(document).on('click', '.employee_status', function(event) {
             console.log('navigated to employee status page');
         });
@@ -299,7 +330,6 @@ $(function(){
         {
             // todo - send message to employees
             console.log('broadcast sent');
-            $('.content_div').hide();
             $('#' + 'warden_map_content').show();
         });
 
@@ -307,8 +337,21 @@ $(function(){
         $(document).on('click', '.cancel_broadcast', function(event)
         {
             console.log('broadcast canceled');
-            $('.content_div').hide();
             $('#' + 'warden_map_content').show();
+        });
+
+        // user checks in
+        $(document).on('click', '.check_in_button', function(event)
+        {
+            console.log('user checking in');
+            Module.updateStatus(1);
+        });
+
+        // user needs assistance
+        $(document).on('click', '.need_assistance_button', function(event)
+        {
+            console.log('user needs assistance');
+            Module.updateStatus(2);
         });
     });
 

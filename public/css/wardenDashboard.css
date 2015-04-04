@@ -28,7 +28,7 @@
 .ui-navbar .ui-btn-active {
     background: #2ad !important;
 }
-#warden_compass_content, #warden_personnel_content, #warden_status_content {
+#warden_compass_content, #warden_personnel_content, #employee_status_content {
 	display: none;
 }
 .userDashboard_mobilecontainer {
@@ -83,3 +83,12 @@
     font:4em Helvetica;
     margin: 0 0 0 -40px;
 }*/
+.check_in_button {
+	margin-right: 0;
+	margin-bottom: 20px;
+	background-color: #166549!important;
+	border-color: #166549!important;
+}
+.check_in_button {
+	margin-right: 0;
+}
