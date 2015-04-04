@@ -89,25 +89,25 @@ var Module = (function () {
         for (i=0; i<employees.length; i++) {
             switch (employees[i].status) {
                 case 1:
-                    checkedInEmployees.push(employees[i].name);
+                    checkedInEmployees.push(employees[i]);
                     break;
                 case 2:
-                    needAssistanceEmployees.push(employees[i].name);
+                    needAssistanceEmployees.push(employees[i]);
                     break;
                 default:
-                    notCheckedInEmployees.push(employees[i].name);
+                    notCheckedInEmployees.push(employees[i]);
                     break;
             }
         };
 
         for (i=0; i<checkedInEmployees.length; i++) {
-            checkedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+            checkedInInner += '<li><a href="#">' + checkedInEmployees[i].name + '</a></li>';
         };
         for (i=0; i<needAssistanceEmployees.length; i++) {
-            needAssistanceInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+            needAssistanceInner += '<li><a href="#">' + needAssistanceEmployees[i].name + '</a></li>';
         };
         for (i=0; i<notCheckedInEmployees.length; i++) {
-            notCheckedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+            notCheckedInInner += '<li><a href="#">' + notCheckedInEmployees[i].name + '</a></li>';
         };
 
         $('#need_assistance_counter').text(needAssistanceEmployees.length);
