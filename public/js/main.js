@@ -15,32 +15,38 @@ var Module = (function () {
             {
                 "id": 1,
                 "name": "Monica Ruzich",
-                "status": 2
+                "status": 2,
+                "phoneNo": 5555555
             },
             {
                 "id": 6,
                 "name": "Daniel Lifschitz",
-                "status": 0
+                "status": 0,
+                "phoneNo": 5555555
             },
             {
                 "id": 2,
                 "name": "Amy Estey",
-                "status": 0
+                "status": 0,
+                "phoneNo": 5555555
             },
             {
                 "id": 3,
                 "name": "Brando McCune",
-                "status": 1
+                "status": 1,
+                "phoneNo": 5555555
             },
             {
                 "id": 4,
                 "name": "Scott Huthmacher",
-                "status": 1
+                "status": 1,
+                "phoneNo": 5555555
             },
             {
                 "id": 5,
                 "name": "Adam Webb",
-                "status": 1
+                "status": 1,
+                "phoneNo": 5555555
             }
         ]
     };
@@ -70,35 +76,43 @@ var Module = (function () {
     // get all employees current info and status, update lists, for evac coordinator only
     function updatePersonnelInfo() {
         var employees = jsonData.employees;
+        sessionStorage.setItem('allEmployees', JSON.stringify(employees));
+
+        var needAssistanceEmployees = [];
+        var notCheckedInEmployees = [];
+        var checkedInEmployees = [];
 
         var needAssistanceInner = '';
         var notCheckedInInner = '';
         var checkedInInner = '';
 
-        var needAssistanceCounter = 0;
-        var notCheckedInCounter = 0;
-        var checkedInCounter = 0;
-
         for (i=0; i<employees.length; i++) {
             switch (employees[i].status) {
                 case 1:
-                    checkedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
-                    checkedInCounter++;
+                    checkedInEmployees.push(employees[i].name);
                     break;
                 case 2:
-                    needAssistanceInner += '<li><a href="#">' + employees[i].name + '</a></li>';
-                    needAssistanceCounter++;
+                    needAssistanceEmployees.push(employees[i].name);
                     break;
                 default:
-                    notCheckedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
-                    notCheckedInCounter++;
+                    notCheckedInEmployees.push(employees[i].name);
                     break;
             }
         };
 
-        $('#need_assistance_counter').text(needAssistanceCounter);
-        $('#not_checked_in_counter').text(notCheckedInCounter);
-        $('#checked_in_counter').text(checkedInCounter);
+        for (i=0; i<checkedInEmployees.length; i++) {
+            checkedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+        };
+        for (i=0; i<needAssistanceEmployees.length; i++) {
+            needAssistanceInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+        };
+        for (i=0; i<notCheckedInEmployees.length; i++) {
+            notCheckedInInner += '<li><a href="#">' + employees[i].name + '</a></li>';
+        };
+
+        $('#need_assistance_counter').text(needAssistanceEmployees.length);
+        $('#not_checked_in_counter').text(notCheckedInEmployees.length);
+        $('#checked_in_counter').text(checkedInEmployees.length);
 
         $('#need_assistance_employees').html(needAssistanceInner);
         $('#not_checked_in_employees').html(notCheckedInInner);

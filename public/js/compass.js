@@ -4,8 +4,6 @@
 
  var Compass = (function() {
 
- 	var rendezvousCoords = []
-
  	var initCompass = function() {
         //Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
@@ -55,34 +53,38 @@
 
     function watchPosition(position) {
         console.log(position.coords.latitude); 
-        console.log(position.coords.longitude); 
-        console.log('successfully logged coordinates');
+        console.log(position.coords.longitude);
 
         var txtDistance;
 
         // get current users rendezvous coordinates
-        rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
+        var rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
 
         var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
-        var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
-        distance = distance * 3.28084; //convert from meters to feet
-        if (distance > 2640) {
-            distance = distance / 5280;
-            distance = Math.round( distance * 10 ) / 10;
-            txtDistance = distance + ' mi';
+        if (rendezvousCoords.length > 1) {
+            var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
+
+            var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
+            distance = distance * 3.28084; //convert from meters to feet
+            if (distance > 2640) {
+                distance = distance / 5280;
+                distance = Math.round( distance * 10 ) / 10;
+                txtDistance = distance + ' mi';
+            }
+            else {
+                if (distance < 25) {
+                    // automatic checkin occurs
+                    Module.updateStatus(1);
+                };
+                distance = Math.round(distance);
+                txtDistance = distance + ' ft';
+            }
+            console.log(distance);
         }
         else {
-            if (distance < 25) {
-                // automatic checkin occurs
-                Module.updateStatus(1);
-            };
-            distance = Math.round(distance);
-            txtDistance = distance + ' ft';
+            txtDistance = 'No evacuation point available';
         }
-        console.log(distance);
-
         $('.compass_distance').text(txtDistance);
     };
 
