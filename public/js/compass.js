@@ -8,28 +8,20 @@
         //Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
-                rotate(360 - e.alpha);
+                var heading = null;
+                if (e.alpha !== null) {
+                    heading = compassHeading(e.alpha, e.beta, e.gamma);
+                    //console.log('compass heading: '+ heading);
+                };
+                rotate(heading);
             }, false);
-        }
+        };
 
         getLocation();
     };
 
  	var rotate = function (deg) {  
-        $(".pointer").css({ "-moz-transform": "rotate(0deg)"});
-        $(".pointer").css({ "-moz-transform": "rotate(" + deg + "deg)"});
-    
-        $(".pointer").css({ "-o-transform": "rotate(0deg)"});
-        $(".pointer").css({ "-o-transform": "rotate(" + deg + "deg)"});
-    
-        $(".pointer").css({ "-ms-transform": "rotate(0deg)"});
-        $(".pointer").css({ "-ms-transform": "rotate(" + deg + "deg)"});
-    
-        $(".pointer").css({ "-webkit-transform": "rotate(0deg)"});
-        $(".pointer").css({ "-webkit-transform": "rotate(" + deg + "deg)"});
-    
-        $(".pointer").css({ "transform": "rotate(0deg)"});
-        $(".pointer").css({ "transform": "rotate(" + deg + "deg)"});
+        $('.pointer').css('transform', 'rotate(' + (-deg) + 'deg)');
     };
 
     var geoOptions = {
@@ -38,9 +30,45 @@
         timeout           : 27000
     };
 
+    function compassHeading(alpha, beta, gamma) {
+
+        // Convert degrees to radians
+        var alphaRad = alpha * (Math.PI / 180);
+        var betaRad = beta * (Math.PI / 180);
+        var gammaRad = gamma * (Math.PI / 180);
+
+        // Calculate equation components
+        var cA = Math.cos(alphaRad);
+        var sA = Math.sin(alphaRad);
+        var cB = Math.cos(betaRad);
+        var sB = Math.sin(betaRad);
+        var cG = Math.cos(gammaRad);
+        var sG = Math.sin(gammaRad);
+
+        // Calculate A, B, C rotation components
+        var rA = - cA * sG - sA * sB * cG;
+        var rB = - sA * sG + cA * sB * cG;
+        var rC = - cB * cG;
+
+        // Calculate compass heading
+        var compassHeading = Math.atan(rA / rB);
+
+        // Convert from half unit circle to whole unit circle
+        if(rB < 0) {
+            compassHeading += Math.PI;
+        }else if(rA < 0) {
+            compassHeading += 2 * Math.PI;
+        }
+
+        // Convert radians to degrees
+        compassHeading *= 180 / Math.PI;
+
+        return compassHeading;
+    };
+
     function geoError() {
         alert("Sorry, no position available.");
-    }
+    };
 
     function getLocation() {
         if (navigator.geolocation) {
