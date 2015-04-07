@@ -10,13 +10,7 @@
             window.addEventListener("deviceorientation", function (e) {
                 var heading = null;
                 if (e.alpha !== null) {
-                    //heading = compassHeading(e.alpha, e.beta, e.gamma);
-                    if (e.webkitCompassHeading) {
-                        heading = e.webkitCompassHeading
-                    }
-                    else {
-                        heading = e.alpha;
-                    }
+                    heading = e.alpha;
 
                     console.log('compass heading: '+ heading);
                     rotate(360 - heading);
