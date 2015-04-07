@@ -10,10 +10,15 @@
             window.addEventListener("deviceorientation", function (e) {
                 var heading = null;
                 if (e.alpha !== null) {
-                    heading = e.alpha;
+                    if (e.webkitCompassHeading) {
+                        heading = e.webkitCompassHeading;
+                    }
+                    else {
+                        heading = 360 - e.alpha;
+                    }
 
-                    console.log('compass heading: '+ heading);
-                    rotate(360 - heading);
+                    //console.log('compass heading: '+ heading);
+                    rotate(heading);
                 }
             }, false);
         };
