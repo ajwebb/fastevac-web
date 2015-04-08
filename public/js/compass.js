@@ -12,9 +12,6 @@
         getLocation();
         rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
 
-        //for screenshot purpose only
-        rotate(320);
-
         //Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
@@ -97,8 +94,6 @@
             txtDistance = 'No evacuation point available';
         }
         $('.compass_distance').text(txtDistance);
-        //screenshot purposes only
-        $('.compass_distance').text('120 ft');
     };
 
     return {
