@@ -4,30 +4,47 @@
 
  var Compass = (function() {
 
+    var currentLat;
+    var currentLong;
+    var rendezvousCoords;
+
  	var initCompass = function() {
+        getLocation();
+        rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
+
+        //for screenshot purpose only
+        rotate(320);
+
         //Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
                 var heading = null;
                 if (e.alpha !== null) {
                     if (e.webkitCompassHeading) {
-                        heading = e.webkitCompassHeading;
+                        heading = 360 - e.webkitCompassHeading;
                     }
                     else {
-                        heading = 360 - e.alpha;
+                        heading = e.alpha;
                     }
 
-                    //console.log('compass heading: '+ heading);
+                    //console.log('initial compass heading: '+ heading);
+
+                    //todo - calibrate heading to point to evac point
+                    //testing
+                    if (typeof(currentLat) !== 'undefined' && typeof(currentLong) !== 'undefined') {
+                        var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
+                        heading2 = heading2 * (180/Math.PI);
+                        console.log('head to specific coords!' + heading2);
+                    }
+
                     rotate(heading);
                 }
             }, false);
         };
-
-        getLocation();
     };
 
  	var rotate = function (deg) {  
-        $('.pointer').css('transform', 'rotate(' + (-deg) + 'deg)');
+        $('.pointer').css('transform', 'rotate(' + (deg) + 'deg)');
     };
 
     var geoOptions = {
@@ -50,13 +67,10 @@
     };
 
     function watchPosition(position) {
-        console.log(position.coords.latitude); 
-        console.log(position.coords.longitude);
+        currentLat = position.coords.latitude;
+        currentLong = position.coords.longitude;
 
         var txtDistance;
-
-        // get current users rendezvous coordinates
-        var rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
 
         var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
@@ -78,12 +92,13 @@
                 distance = Math.round(distance);
                 txtDistance = distance + ' ft';
             }
-            console.log(distance);
         }
         else {
             txtDistance = 'No evacuation point available';
         }
         $('.compass_distance').text(txtDistance);
+        //screenshot purposes only
+        $('.compass_distance').text('120 ft');
     };
 
     return {
