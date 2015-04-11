@@ -85,6 +85,7 @@
                 if (distance < 25) {
                     // automatic checkin occurs
                     Module.updateStatus(1);
+                    // todo - stop watching position
                 };
                 distance = Math.round(distance);
                 txtDistance = distance + ' ft';

@@ -59,6 +59,7 @@
 .ui-li-count {
 	border: none;
 }
+/* compass pointer */
 .pointer {
     height: 0;
     width: 0;
@@ -75,20 +76,4 @@
 	text-align: center;
 	font-size: 44px;
 	font-weight: bolder;
-}
-/*.n {
-    top: 20%;
-    left:50%;
-    position:absolute;
-    font:4em Helvetica;
-    margin: 0 0 0 -40px;
-}*/
-.check_in_button {
-	margin-right: 0;
-	margin-bottom: 20px;
-	background-color: #166549!important;
-	border-color: #166549!important;
-}
-.check_in_button {
-	margin-right: 0;
 }

@@ -5,7 +5,7 @@
 var Module = (function () {
 
     var id, name, currentStatus, companyId, companyName, companyStatus;
-    var wardenFlag = false;
+    var wardenFlag = 'false';
     var mapCoordinates = [];
 
     // json for list of employees, todo - get data from database and parse as json object
@@ -56,10 +56,10 @@ var Module = (function () {
         "id": 111111,
         "name": "Adam Webb",
         "status": 0,
-        "wardenFlag": true,
+        "wardenFlag": 'true',
         "companyId": 111111,
         "companyName": "FastEvac",
-        "companyStatus": 0,
+        "companyStatus": 1,
         "coordinates":
         [
             {
@@ -168,7 +168,7 @@ var Module = (function () {
         validLogin = true;
 
         if (validLogin) {
-            if (wardenFlag) {
+            if (isCurrentUserWarden()) {
                 // todo - initiate employee lists for evac coordinator
                 $.mobile.changePage('#alertScreen');
             }
@@ -222,10 +222,10 @@ var Module = (function () {
         var userStatusTxt;
 
         if (companyStatus == 1) {
-            companyStatusTxt = 'Evacuate Facility';
+            companyStatusTxt = 'Proceed to Evacuation Zone';
         }
         else if (companyStatus == 2) {
-            companyStatusTxt = 'Evacuate Facility (Drill)';
+            companyStatusTxt = 'Evacuation Drill';
         }
         else {
             companyStatusTxt = 'Safe';
@@ -374,7 +374,4 @@ $(function(){
         console.log('broadcast message');
         $('#textarea').focus();
     });
-
-    // BEGIN TESTING SECTION
-    // END TESTING SECTION
 });

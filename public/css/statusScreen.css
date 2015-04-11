@@ -1,5 +1,5 @@
-
-/* alert screen mobileheader */
+/* broadcast dialog */
+/* broadcast header */
 .broadcast_dialog_header {
 	border: none!important;
 	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
@@ -51,4 +51,22 @@
 }
 .broadcast_radio .ui-btn-active {
 	background: #2ad !important;
+}
+
+/* employee status screen */
+.evacuation_status_label {
+	text-align: center;
+}
+.current_status_label {
+	text-align: center;
+}
+.check_in_button {
+	margin-right: 0;
+	margin-bottom: 20px;
+	background-color: #166549!important;
+	border-color: #166549!important;
+}
+.check_in_button:hover {
+	background-color: #1f8f67!important;
+	border-color: #1f8f67!important;
 }
