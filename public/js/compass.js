@@ -10,7 +10,7 @@
 
  	var initCompass = function() {
         getLocation();
-        rendezvousCoords = JSON.parse(sessionStorage['mapCoords']);
+        rendezvousCoords = Module.getCoordinateInfo();
 
         //Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
@@ -23,8 +23,6 @@
                     else {
                         heading = e.alpha;
                     }
-
-                    //console.log('initial compass heading: '+ heading);
 
                     //todo - calibrate heading to point to evac point
                     //testing
