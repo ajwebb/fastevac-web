@@ -12,7 +12,7 @@
         getLocation();
         rendezvousCoords = Module.getCoordinateInfo();
 
-        //Check for support for DeviceOrientation event
+        // Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
                 var heading = null;
@@ -26,13 +26,20 @@
 
                     //todo - calibrate heading to point to evac point
                     //testing
-                    if (typeof(currentLat) !== 'undefined' && typeof(currentLong) !== 'undefined') {
+                    if (typeof(currentLat) === 'undefined' || typeof(currentLong) === 'undefined') {
+                        getCurrentLocation();
+                    }
+                    try {
                         var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
                         heading2 = heading2 * (180/Math.PI);
-                        console.log('head to specific coords!' + heading2);
+                        console.log('head to specific evacuation point coords!' + heading2);
                     }
-
-                    rotate(heading);
+                    catch(err) {
+                        console.log('Error calculating heading to evacuation point: ' + err.message);
+                    }
+                    finally {
+                        rotate(heading);
+                    }
                 }
             }, false);
         };
@@ -61,6 +68,19 @@
         }
     };
 
+    function getCurrentLocation() {
+        if (Modernizr.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                currentLat = position.coords.latitude;
+                currentLong = position.coords.longitude;
+                console.log('logged current position');
+            });
+        }
+        else {
+            alert('Sorry, browser does not allow geolocation');
+        }
+    };
+
     function watchPosition(position) {
         currentLat = position.coords.latitude;
         currentLong = position.coords.longitude;
@@ -73,7 +93,7 @@
             var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
             var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
-            distance = distance * 3.28084; //convert from meters to feet
+            distance = distance * 3.28084; // convert from meters to feet
             if (distance > 2640) {
                 distance = distance / 5280;
                 distance = Math.round( distance * 10 ) / 10;
@@ -83,7 +103,6 @@
                 if (distance < 25) {
                     // automatic checkin occurs
                     Module.updateStatus(1);
-                    // todo - stop watching position
                 };
                 distance = Math.round(distance);
                 txtDistance = distance + ' ft';

@@ -138,7 +138,7 @@
                             <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="custom">Map</a></li>
                             <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
                             <li><a href="#" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
-                            <li><a href="#broadcast_popup" data-href="warden_status" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
                          </ul>
                     </div>
                     <div data-role="navbar" id="employee_navbar">
@@ -196,6 +196,8 @@
                     <a href="#" data-role="button" class="need_assistance_button" data-theme="d">Help</a>
                 </div>
 
+                
+
             </div>
         </div>
 
@@ -217,7 +219,7 @@
                 <textarea name="textarea" id="textarea" class="broadcast_txtarea"></textarea>
                 <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Send</a>
             </div>
-        </div><!-- /page popup -->
+        </div><!-- /broadcast popup -->
 
         <script src="js/main.js"></script>
         <script src="js/helper.js"></script>

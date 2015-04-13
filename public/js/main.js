@@ -62,7 +62,7 @@ var Module = (function () {
         "wardenFlag": 'true',
         "companyId": 111111,
         "companyName": "FastEvac",
-        "companyStatus": 1,
+        "companyStatus": 0,
         "coordinates":
         [
             {
@@ -203,10 +203,18 @@ var Module = (function () {
 
         if (validLogin) {
             if (isCurrentUserWarden()) {
-                $.mobile.changePage('#alertScreen');
+                if (companyStatus === 0) {
+                    // successful login for warden where the currently is no evacuation, direct to alert page
+                    $.mobile.changePage('#alertScreen');
+                }
+                else {
+                    // successful login for warden where evacuation is already in process, join socket room for the the company
+                    socket.emit('join', companyName);
+                    $.mobile.changePage('#userDashboard');
+                }
             }
             else {
-                // join socket room of the company
+                // successful login for employee, join socket room for the company
                 socket.emit('join', companyName);
                 $.mobile.changePage('#userDashboard');
             }
@@ -342,22 +350,7 @@ $(function(){
     $(document).on('pagecreate', '#userDashboard', function() {
         console.log('user dashboard');
 
-        // show correct navbar depending if warden or regular employee
-        if (Module.isCurrentUserWarden()) {
-            $('#employee_navbar').hide();
-            $('#warden_navbar').show();
-
-            // add employees to corresponding lists on personnel page
-            Module.updatePersonnelInfo();
-        }
-        else {
-            $('#warden_navbar').hide();
-            $('#employee_navbar').show();
-
-            // set current evacuation procedure and user status
-            Module.getStatusInfo();
-        }
-
+        // initialize map
         Module.setStaticMap();
 
         // need to resize map on device orientation change
@@ -373,22 +366,18 @@ $(function(){
             $('#' + $(this).attr('data-href') + '_content').show();
         });
 
-        // user clicks on warden status tab, broadcast dialog pops up
-        $(document).on('click', '.warden_status', function(event) {
-            console.log('broadcast clicked');
-            event.stopPropagation();
-        });
-
         // sends broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.send_message', function(event) {
             // todo - send message to employees
             console.log('broadcast sent');
+            document.getElementById('textarea').value = '';
             $('#' + 'warden_map_content').show();
         });
 
         // cancels broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.cancel_broadcast', function(event) {
             console.log('broadcast canceled');
+            document.getElementById('textarea').value = '';
             $('#' + 'warden_map_content').show();
         });
 
@@ -405,8 +394,39 @@ $(function(){
         });
     });
 
-    // click broadcast message popup, focus textarea
-    $(document).on('pageshow', '#broadcast_popup', function() {
-        $('#textarea').focus();
+    // navigating to dashboard page, before page container show events, show the corrent navbar
+    $(document).on("pagecontainerbeforeshow", function () {
+        var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
+        var activePageId = activePage[0].id;
+        if (activePageId === 'userDashboard') {
+            if (Module.isCurrentUserWarden()) {
+                $('#employee_navbar').hide();
+                $('#warden_navbar').show();
+            }
+            else {
+                $('#warden_navbar').hide();
+                $('#employee_navbar').show();
+            }
+        }
+    });
+
+    // navigating to dashboard page, page container show events
+    $(document).on("pagecontainershow", function () {
+        var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
+        var activePageId = activePage[0].id;
+        if (activePageId === 'userDashboard') {
+            if (Module.isCurrentUserWarden()) {
+                // add employees to corresponding lists on personnel page
+                Module.updatePersonnelInfo();
+            }
+            else {
+                // set current evacuation procedure and user status
+                Module.getStatusInfo();
+            }
+        }
+        else if (activePageId === 'broadcast_popup') {
+            console.log('broadcast popup clicked');
+            $('#textarea').focus();
+        }
     });
 });
