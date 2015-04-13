@@ -426,7 +426,7 @@ $(function(){
         }
         else if (activePageId === 'broadcast_popup') {
             console.log('broadcast popup clicked');
-            $('#textarea').focus();
+            // $('#textarea').focus();
         }
     });
 });
