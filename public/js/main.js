@@ -373,6 +373,12 @@ $(function(){
             $('#' + $(this).attr('data-href') + '_content').show();
         });
 
+        // user clicks on warden status tab, broadcast dialog pops up
+        $(document).on('click', '.warden_status', function(event) {
+            console.log('broadcast clicked');
+            event.stopPropagation();
+        });
+
         // sends broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.send_message', function(event) {
             // todo - send message to employees
@@ -401,7 +407,6 @@ $(function(){
 
     // click broadcast message popup, focus textarea
     $(document).on('pageshow', '#broadcast_popup', function() {
-        console.log('broadcast message');
         $('#textarea').focus();
     });
 });
