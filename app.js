@@ -30,7 +30,28 @@ app.get('/', function(req, res) {
 //     console.log('Our app is running on http://localhost:' + port);
 // });
 
+// socket io
+
+var rooms = [];
+
 io.on('connection', function(client){
 	console.log('client connected');
+
+	client.on('create', function(room) {
+		if (rooms.length === 0 || rooms.indexOf(room) === -1) {
+			rooms.push(room);
+			console.log('created room: ' + room);
+		}
+		client.join(room);
+		console.log('joined room: ' + room);
+	});
+
+	client.on('join', function(room) {
+		if (rooms.length > 0 && rooms.indexOf(room) != -1) {
+			client.join(room);
+			console.log('joined room: ' + room);
+		}
+	});
+
 });
 

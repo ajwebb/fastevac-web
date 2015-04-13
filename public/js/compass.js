@@ -53,7 +53,7 @@
     };
 
     function getLocation() {
-        if (navigator.geolocation) {
+        if (Modernizr.geolocation) {
             navigator.geolocation.watchPosition(watchPosition, geoError, geoOptions);
         }
         else {

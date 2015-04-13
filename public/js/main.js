@@ -4,8 +4,12 @@
 
 var Module = (function () {
 
+    var socket = io.connect();
+
     var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag;
     var mapCoordinates = [];
+    var employees = [];
+    var employeeHash = {};
 
     // json for list of employees, todo - get data from database and parse as json object
     var jsonData = {
@@ -52,7 +56,7 @@ var Module = (function () {
 
     // json data for current user
     var currentUserJsonData = {
-        "id": 111111,
+        "id": 5,
         "name": "Adam Webb",
         "status": 0,
         "wardenFlag": 'true',
@@ -72,9 +76,22 @@ var Module = (function () {
         ]
     };
 
+    socket.on('updateStatus', function() {
+        console.log('updating user status');
+    });
+
+    function getEmployeeData() {
+        employees = jsonData.employees;
+        employees.forEach(function(employee) {
+            employeeHash[employee.id] = employee;
+        });
+    };
+
     // get all employees current info and status, update lists, for evac coordinator only
     function updatePersonnelInfo() {
-        var employees = jsonData.employees;
+        if (employees.length === 0) {
+            getEmployeeData();
+        }
 
         var needAssistanceEmployees = [];
         var notCheckedInEmployees = [];
@@ -131,9 +148,8 @@ var Module = (function () {
         if (Modernizr.sessionstorage) {
             wardenFlag = sessionStorage.getItem('wardenFlag');
         }
-        else {
-            // query warden flag for current user
-            getUserDetails();
+        else if (typeof(wardenFlag) === 'undefined') {
+            getUserDetails(); // could just query wardenFlag
         }
         if (wardenFlag === 'true') {
             return true;
@@ -150,8 +166,7 @@ var Module = (function () {
         }
         else {
             if ((typeof(mapCoordinates) === 'undefined') || mapCoordinates.length == 0) {
-                // todo - query coordinate info for user
-                getUserDetails();
+                getUserDetails(); // could just query coordinates info
             }
             return mapCoordinates;
         }
@@ -188,10 +203,11 @@ var Module = (function () {
 
         if (validLogin) {
             if (isCurrentUserWarden()) {
-                // todo - initiate employee lists for evac coordinator
                 $.mobile.changePage('#alertScreen');
             }
             else {
+                // join socket room of the company
+                socket.emit('join', companyName);
                 $.mobile.changePage('#userDashboard');
             }
         }
@@ -202,9 +218,16 @@ var Module = (function () {
     };
 
     var triggerAlert = function () {
-        // todo - initiate alert for all employees (send push notifications or messages out)
+        // todo - send push notifications or messages to all employees
         // todo - also initiate all employees as not checked in
         companyStatus = 1; // 1 = alert
+
+        // create socket room for company
+        if (typeof(companyName) === 'undefined') {
+            getUserDetails();
+        }
+        socket.emit('create', companyName);
+
         $.mobile.changePage('#userDashboard');
     };
 
@@ -233,7 +256,17 @@ var Module = (function () {
             s = 2;
         }
         mapCoordinates = getCoordinateInfo();
-        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude + '&markers=color:green|' + mapCoordinates[1].latitude + ',' + mapCoordinates[1].longitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
+        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
+        for (i=1; i<mapCoordinates.length; i++) {
+            if (i % 2 != 0) {
+                mapImageURL += '&markers=color:green|';
+            }
+            else {
+                mapImageURL += '&markers=color:blue|';
+            }
+            mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
+        }
+        mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
 
