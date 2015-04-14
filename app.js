@@ -53,5 +53,12 @@ io.on('connection', function(client){
 		}
 	});
 
+	client.on('broadcast', function(message, room) {
+		if (rooms.length > 0 && rooms.indexOf(room) != -1) {
+			console.log('message was broadcasted');
+			client.broadcast.to(room).emit('message_received', message);
+		}
+	});
+
 });
 

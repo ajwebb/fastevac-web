@@ -43,10 +43,18 @@
 	background: #b95752!important;
 	border-color: #b95752!important;
 }
+.confirm_alert:hover {
+	background: #c06964!important;
+	border-color: #c06964!important;
+}
 /* cancel alert */
 .cancel_alert {
 	background: #166549!important;
 	border-color: #166549!important;
+}
+.cancel_alert:hover {
+	background-color: #1f8f67!important;
+	border-color: #1f8f67!important;
 }
 /* alert popup message */
 .alert_popup_msg {

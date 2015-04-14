@@ -11,6 +11,12 @@ var Module = (function () {
     var employees = [];
     var employeeHash = {};
 
+    // socket events
+    socket.on('message_received', function(message) {
+        console.log('socket broadcast event received');
+        alert(message);
+    });
+
     // json for list of employees, todo - get data from database and parse as json object
     var jsonData = {
         "employees":
@@ -75,10 +81,6 @@ var Module = (function () {
             }
         ]
     };
-
-    socket.on('updateStatus', function() {
-        console.log('updating user status');
-    });
 
     function getEmployeeData() {
         employees = jsonData.employees;
@@ -313,6 +315,10 @@ var Module = (function () {
 
         getStatusInfo();
     };
+
+    var broadcastMessage = function(message) {
+        socket.emit('broadcast', message, companyName);
+    };
   
     return {
         validateLoginCredentials: validateLoginCredentials,
@@ -322,7 +328,8 @@ var Module = (function () {
         updatePersonnelInfo: updatePersonnelInfo,
         updateStatus: updateStatus,
         getStatusInfo: getStatusInfo,
-        getCoordinateInfo: getCoordinateInfo
+        getCoordinateInfo: getCoordinateInfo,
+        broadcastMessage: broadcastMessage
     };
 
 })();
@@ -368,8 +375,11 @@ $(function(){
 
         // sends broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.send_message', function(event) {
-            // todo - send message to employees
-            console.log('broadcast sent');
+            var message = document.getElementById('textarea').value;
+            if (typeof(message) !== 'undefined' && message !== 'null' && message !== '') {
+                Module.broadcastMessage(message);
+                console.log('broadcast sent');
+            }
             document.getElementById('textarea').value = '';
             $('#' + 'warden_map_content').show();
         });
@@ -426,7 +436,7 @@ $(function(){
         }
         else if (activePageId === 'broadcast_popup') {
             console.log('broadcast popup clicked');
-            // $('#textarea').focus();
+            // $('#textarea').focus();  // removing because textarea focus causing issues on mobile safari
         }
     });
 });
