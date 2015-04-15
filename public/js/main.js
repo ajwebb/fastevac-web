@@ -6,8 +6,7 @@ var Module = (function () {
 
     var socket = io.connect();
 
-    var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag;
-    var mapCoordinates = [];
+    var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag, mapCoordinates;
     var employees = [];
     var employeeHash = {};
 
@@ -147,11 +146,13 @@ var Module = (function () {
 
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
-        if (Modernizr.sessionstorage) {
-            wardenFlag = sessionStorage.getItem('wardenFlag');
-        }
-        else if (typeof(wardenFlag) === 'undefined') {
-            getUserDetails(); // could just query wardenFlag
+        if (typeof(wardenFlag) === 'undefined') {
+            if (Modernizr.sessionstorage) {
+                wardenFlag = sessionStorage.getItem('wardenFlag');
+            }
+            else {
+                getUserDetails(); // could just query wardenFlag
+            }
         }
         if (wardenFlag === 'true') {
             return true;
@@ -168,7 +169,7 @@ var Module = (function () {
         }
         else {
             if ((typeof(mapCoordinates) === 'undefined') || mapCoordinates.length == 0) {
-                getUserDetails(); // could just query coordinates info
+                getUserDetails(); // query coordinates info
             }
             return mapCoordinates;
         }
@@ -183,6 +184,7 @@ var Module = (function () {
         companyName = currentUserJsonData.companyName;
         companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
         currentStatus = currentUserJsonData.status;
+        mapCoordinates = [];
 
         // get map coordinates for facility/evac pts, facility being first, and evac points following
         for (i=0; i<currentUserJsonData.coordinates.length; i++) {
@@ -234,7 +236,7 @@ var Module = (function () {
 
         // create socket room for company
         if (typeof(companyName) === 'undefined') {
-            getUserDetails();
+            getUserDetails(); // query company name info
         }
         socket.emit('create', companyName);
 
