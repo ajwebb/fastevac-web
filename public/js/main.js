@@ -6,7 +6,7 @@ var Module = (function () {
 
     var socket = io.connect();
 
-    var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag, mapCoordinates;
+    var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag, mapCoordinates, wardenId;
     var employees = [];
     var employeeHash = {};
 
@@ -14,6 +14,10 @@ var Module = (function () {
     socket.on('message_received', function(message) {
         console.log('socket broadcast event received');
         alert(message);
+    });
+
+    socket.on('employee_status_update', function() {
+        alert('successfully received employee status update event');
     });
 
     // json for list of employees, todo - get data from database and parse as json object
@@ -68,6 +72,7 @@ var Module = (function () {
         "companyId": 111111,
         "companyName": "FastEvac",
         "companyStatus": 0,
+        "wardenId": 5,
         "coordinates":
         [
             {
@@ -175,7 +180,7 @@ var Module = (function () {
         }
     };
 
-    var getUserDetails = function () {
+    function getUserDetails() {
         // get data from json object, todo - create json object from data in database
         id = currentUserJsonData.id;
         name = currentUserJsonData.name;
@@ -184,6 +189,7 @@ var Module = (function () {
         companyName = currentUserJsonData.companyName;
         companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
         currentStatus = currentUserJsonData.status;
+        wardenId = currentUserJsonData.wardenId;
         mapCoordinates = [];
 
         // get map coordinates for facility/evac pts, facility being first, and evac points following
@@ -198,7 +204,7 @@ var Module = (function () {
         }
     };
 
-    var validateLoginCredentials = function () {
+    function validateLoginCredentials() {
         var validLogin = false;
 
         // todo - get user details from db and authenticate properly
@@ -213,13 +219,13 @@ var Module = (function () {
                 }
                 else {
                     // successful login for warden where evacuation is already in process, join socket room for the the company
-                    socket.emit('join', companyName);
+                    socket.emit('join', id, companyName, true);
                     $.mobile.changePage('#userDashboard');
                 }
             }
             else {
                 // successful login for employee, join socket room for the company
-                socket.emit('join', companyName);
+                socket.emit('join', id, companyName, false);
                 $.mobile.changePage('#userDashboard');
             }
         }
@@ -229,7 +235,7 @@ var Module = (function () {
 
     };
 
-    var triggerAlert = function () {
+    function triggerAlert() {
         // todo - send push notifications or messages to all employees
         // todo - also initiate all employees as not checked in
         companyStatus = 1; // 1 = alert
@@ -238,12 +244,12 @@ var Module = (function () {
         if (typeof(companyName) === 'undefined') {
             getUserDetails(); // query company name info
         }
-        socket.emit('create', companyName);
+        socket.emit('create', id, companyName);
 
         $.mobile.changePage('#userDashboard');
     };
 
-    var setStaticMap = function() {
+    function setStaticMap() {
         var w = $(document).width();
         var h = $(document).height();
         var z = 19;
@@ -282,7 +288,7 @@ var Module = (function () {
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
 
-    var getStatusInfo = function() {
+    function getStatusInfo() {
         var companyStatusTxt;
         var userStatusTxt;
 
@@ -310,15 +316,16 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
-    var updateStatus = function(updatedStatus) {
+    function updateStatus(updatedStatus) {
         // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
         currentStatus = updatedStatus;
+        socket.emit('update_status', id, currentStatus, wardenId);
         // todo - update db with updated status
 
         getStatusInfo();
     };
 
-    var broadcastMessage = function(message) {
+    function broadcastMessage(message) {
         socket.emit('broadcast', message, companyName);
     };
   

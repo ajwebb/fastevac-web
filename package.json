@@ -1,6 +1,6 @@
 {
   "name": "FastEvac",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Streamlining Evacuations",
   "main": "app.js",
   "directories": {
@@ -29,6 +29,7 @@
   "dependencies": {
     "express": "^4.12.2",
     "mysql": "^2.6.1",
-    "socket.io": "^1.3.5"
+    "socket.io": "^1.3.5",
+    "redis": "0.12.1"
   }
 }

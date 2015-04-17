@@ -8,7 +8,7 @@
     var currentLong;
     var rendezvousCoords;
 
- 	var initCompass = function() {
+ 	function initCompass() {
         getLocation();
         rendezvousCoords = Module.getCoordinateInfo();
 
@@ -45,7 +45,7 @@
         };
     };
 
- 	var rotate = function (deg) {  
+ 	function rotate(deg) {  
         $('.pointer').css('transform', 'rotate(' + (deg) + 'deg)');
     };
 
