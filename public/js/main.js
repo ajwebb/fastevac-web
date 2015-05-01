@@ -6,10 +6,6 @@ var Module = (function () {
 
     var socket = io.connect();
 
-    var id, name, currentStatus, companyId, companyName, companyStatus, wardenFlag, mapCoordinates, wardenId;
-    var employees = [];
-    var employeeHash = {};
-
     // socket events
     socket.on('message_received', function(message) {
         console.log('socket broadcast event received');
@@ -20,146 +16,140 @@ var Module = (function () {
         alert('successfully received employee status update event');
     });
 
-    // json for list of employees, todo - get data from database and parse as json object
-    var jsonData = {
-        "employees":
-        [
-            {
-                "id": 1,
-                "name": "Monica Ruzich",
-                "status": 2,
-                "phoneNo": 5555555
-            },
-            {
-                "id": 6,
-                "name": "Daniel Lifschitz",
-                "status": 0,
-                "phoneNo": 5555555
-            },
-            {
-                "id": 2,
-                "name": "Amy Estey",
-                "status": 0,
-                "phoneNo": 5555555
-            },
-            {
-                "id": 3,
-                "name": "Brando McCune",
-                "status": 1,
-                "phoneNo": 5555555
-            },
-            {
-                "id": 4,
-                "name": "Scott Huthmacher",
-                "status": 1,
-                "phoneNo": 5555555
-            },
-            {
-                "id": 5,
-                "name": "Adam Webb",
-                "status": 1,
-                "phoneNo": 5555555
-            }
-        ]
-    };
+    var currentUser;
+    var employees = [];
 
-    // json data for current user
-    var currentUserJsonData = {
-        "id": 5,
-        "name": "Adam Webb",
-        "status": 0,
-        "wardenFlag": 'true',
-        "companyId": 111111,
-        "companyName": "FastEvac",
-        "companyStatus": 0,
-        "wardenId": 5,
-        "coordinates":
-        [
-            {
-                "latitude": 33.750125,
-                "longitude": -117.837933
-            },
-            {
-                "latitude": 33.750411,
-                "longitude": -117.838235
-            }
-        ]
-    };
+    // user model
+    var CurrentUserModel = function(userData) {
+        this.id = userData.id;
+        this.name = userData.name;
+        this.wardenFlag = userData.coordinatorFlag;
+        this.companyId = userData.companyId;
+        this.companyName = userData.companyName;
+        this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
+        this.currentStatus = userData.status;
+        if (userData.wardenId === null) {
+            this.wardenId = id;
+        }
+        else {
+            this.wardenId = userData.wardenId;
+        }
+        this.mapCoordinates = userData.coordinates;
+    }
 
-    function getEmployeeData() {
-        employees = jsonData.employees;
-        employees.forEach(function(employee) {
-            employeeHash[employee.id] = employee;
+    // employee model
+    var EmployeeModel = function(employeeData) {
+        this.id = employeeData.id;
+        this.name = employeeData.name;
+        this.status = employeeData.status;
+        this.phoneNo = employeeData.phoneNo;
+    }
+
+    // get user from session
+    function getUserFromSession() {
+
+    }
+
+    // get employee information from the database and load the employees model
+    function getPersonnelInfo() {
+        $.get('/employees', {coordinatorId: currentUser.id}, function(personnelData) {
+            employees = personnelData;
+            updatePersonnelInfo();
         });
-    };
+    }
 
-    // get all employees current info and status, update lists, for evac coordinator only
+    // update lists of employees with their current status, for evac coordinator only
     function updatePersonnelInfo() {
         if (employees.length === 0) {
-            getEmployeeData();
+            // get personnel info from redis cache
         }
 
         var needAssistanceEmployees = [];
         var notCheckedInEmployees = [];
         var checkedInEmployees = [];
 
-        var needAssistanceInner = '';
-        var notCheckedInInner = '';
-        var checkedInInner = '';
-
         for (i=0; i<employees.length; i++) {
             switch (employees[i].status) {
                 case 1:
-                    checkedInEmployees.push(employees[i]);
+                    checkedInEmployees.push($('<li>', {text: employees[i].name}));
                     break;
                 case 2:
-                    needAssistanceEmployees.push(employees[i]);
+                    needAssistanceEmployees.push($('<li>', {text: employees[i].name}));
                     break;
                 default:
-                    notCheckedInEmployees.push(employees[i]);
+                    notCheckedInEmployees.push($('<li>', {text: employees[i].name}));
                     break;
             }
-        };
-
-        for (i=0; i<checkedInEmployees.length; i++) {
-            checkedInInner += '<li><a href="#">' + checkedInEmployees[i].name + '</a></li>';
-        };
-        for (i=0; i<needAssistanceEmployees.length; i++) {
-            needAssistanceInner += '<li><a href="#">' + needAssistanceEmployees[i].name + '</a></li>';
-        };
-        for (i=0; i<notCheckedInEmployees.length; i++) {
-            notCheckedInInner += '<li><a href="#">' + notCheckedInEmployees[i].name + '</a></li>';
         };
 
         $('#need_assistance_counter').text(needAssistanceEmployees.length);
         $('#not_checked_in_counter').text(notCheckedInEmployees.length);
         $('#checked_in_counter').text(checkedInEmployees.length);
 
-        $('#need_assistance_employees').html(needAssistanceInner);
-        $('#not_checked_in_employees').html(notCheckedInInner);
-        $('#checked_in_employees').html(checkedInInner);
-        $('#need_assistance_employees').listview('refresh');
-        $('#not_checked_in_employees').listview('refresh');
-        $('#checked_in_employees').listview('refresh');
+        $('#need_assistance_employees').append(needAssistanceEmployees);
+        $('#not_checked_in_employees').append(notCheckedInEmployees);
+        $('#checked_in_employees').append(checkedInEmployees);
+
+        $('#need_assistance_employees').listview().listview('refresh');
+        $('#not_checked_in_employees').listview().listview('refresh');
+        $('#checked_in_employees').listview().listview('refresh');
     };
 
-    // map coordinates object
-    function Coordinates(latitude, longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    // get current user's coordinate information
+    function getCoordinateInfo() {
+        if (Modernizr.sessionstorage && sessionStorage.getItem('mapCoords') !== null) {
+            return JSON.parse(sessionStorage['mapCoords']);
+        }
+        else {
+            if (typeof(currentUser === 'undefined') || currentUser === null) {
+                // load current user from session cache
+            }
+            return currentUser.mapCoordinates;
+        }
+    };
+
+    function validateLoginCredentials(userData) {
+        if (userData === null || userData === '') {
+            alert('Invalid Login Credentials: User not found');
+        }
+        else {
+            currentUser = new CurrentUserModel(userData);
+            if (Modernizr.sessionstorage) {
+                sessionStorage.setItem('mapCoords', JSON.stringify(currentUser.mapCoordinates));
+                sessionStorage.setItem('wardenFlag', currentUser.wardenFlag);
+            }
+
+            if (isCurrentUserWarden()) {
+                if (currentUser.companyStatus === 0) {
+                    // successful login for warden where the currently is no evacuation, direct to alert page
+                    $.mobile.changePage('#alertScreen');
+                }
+                else {
+                    // successful login for warden where evacuation is already in process, join socket room for the the company
+                    getPersonnelInfo();
+                    socket.emit('join', currentUser.id, currentUser.companyName, true);
+                    $.mobile.changePage('#userDashboard');
+                }
+            }
+            else {
+                // successful login for employee, join socket room for the company
+                socket.emit('join', currentUser.id, currentUser.companyName, false);
+                $.mobile.changePage('#userDashboard');
+            }
+        }
     };
 
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
-        if (typeof(wardenFlag) === 'undefined') {
+        if (typeof(currentUser.wardenFlag) === 'undefined') {
             if (Modernizr.sessionstorage) {
-                wardenFlag = sessionStorage.getItem('wardenFlag');
+                currentUser.wardenFlag = sessionStorage.getItem('wardenFlag');
             }
             else {
-                getUserDetails(); // could just query wardenFlag
+                // query wardenFlag from cache
             }
         }
-        if (wardenFlag === 'true') {
+        if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
             return true;
         }
         else {
@@ -167,84 +157,22 @@ var Module = (function () {
         }
     };
 
-    // get current user's coordinate information
-    function getCoordinateInfo() {
-        if (Modernizr.sessionstorage) {
-            return JSON.parse(sessionStorage['mapCoords']);
-        }
-        else {
-            if ((typeof(mapCoordinates) === 'undefined') || mapCoordinates.length == 0) {
-                getUserDetails(); // query coordinates info
-            }
-            return mapCoordinates;
-        }
-    };
-
-    function getUserDetails() {
-        // get data from json object, todo - create json object from data in database
-        id = currentUserJsonData.id;
-        name = currentUserJsonData.name;
-        wardenFlag = currentUserJsonData.wardenFlag;
-        companyId = currentUserJsonData.companyId;
-        companyName = currentUserJsonData.companyName;
-        companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
-        currentStatus = currentUserJsonData.status;
-        wardenId = currentUserJsonData.wardenId;
-        mapCoordinates = [];
-
-        // get map coordinates for facility/evac pts, facility being first, and evac points following
-        for (i=0; i<currentUserJsonData.coordinates.length; i++) {
-            var coords = new Coordinates(currentUserJsonData.coordinates[i].latitude, currentUserJsonData.coordinates[i].longitude)
-            mapCoordinates.push(coords);
-        }
-
-        if (Modernizr.sessionstorage) {
-            sessionStorage.setItem('mapCoords', JSON.stringify(mapCoordinates));
-            sessionStorage.setItem('wardenFlag', wardenFlag);
-        }
-    };
-
-    function validateLoginCredentials() {
-        var validLogin = false;
-
-        // todo - get user details from db and authenticate properly
-        getUserDetails();
-        validLogin = true;
-
-        if (validLogin) {
-            if (isCurrentUserWarden()) {
-                if (companyStatus === 0) {
-                    // successful login for warden where the currently is no evacuation, direct to alert page
-                    $.mobile.changePage('#alertScreen');
-                }
-                else {
-                    // successful login for warden where evacuation is already in process, join socket room for the the company
-                    socket.emit('join', id, companyName, true);
-                    $.mobile.changePage('#userDashboard');
-                }
-            }
-            else {
-                // successful login for employee, join socket room for the company
-                socket.emit('join', id, companyName, false);
-                $.mobile.changePage('#userDashboard');
-            }
-        }
-        else {
-            alert('Invalid Login Credentials');
-        }
-
-    };
-
     function triggerAlert() {
         // todo - send push notifications or messages to all employees
-        // todo - also initiate all employees as not checked in
-        companyStatus = 1; // 1 = alert
+        // todo - initiate all employees as not checked in
+        
+        if (typeof(currentUser) === 'undefined') {
+            // query current user info from cache
+        }
+
+        // employee information for this warden
+        getPersonnelInfo();
+
+        // set company status to evacuation mode, todo - update db/cache
+        currentUser.companyStatus = 1; // 1 = alert/evacuation mode
 
         // create socket room for company
-        if (typeof(companyName) === 'undefined') {
-            getUserDetails(); // query company name info
-        }
-        socket.emit('create', id, companyName);
+        socket.emit('join', currentUser.id, currentUser.companyName, true);
 
         $.mobile.changePage('#userDashboard');
     };
@@ -273,7 +201,7 @@ var Module = (function () {
             z = 18;
             s = 2;
         }
-        mapCoordinates = getCoordinateInfo();
+        var mapCoordinates = getCoordinateInfo();
         var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
         for (i=1; i<mapCoordinates.length; i++) {
             if (i % 2 != 0) {
@@ -292,20 +220,20 @@ var Module = (function () {
         var companyStatusTxt;
         var userStatusTxt;
 
-        if (companyStatus == 1) {
+        if (currentUser.companyStatus == 1) {
             companyStatusTxt = 'Proceed to Evacuation Zone';
         }
-        else if (companyStatus == 2) {
+        else if (currentUser.companyStatus == 2) {
             companyStatusTxt = 'Evacuation Drill';
         }
         else {
             companyStatusTxt = 'Safe';
         }
 
-        if (currentStatus == 1) {
+        if (currentUser.currentStatus == 1) {
             userStatusTxt = 'Checked In';
         }
-        else if (currentStatus == 2) {
+        else if (currentUser.currentStatus == 2) {
             userStatusTxt = 'In Need of Assistance';
         }
         else {
@@ -318,15 +246,21 @@ var Module = (function () {
 
     function updateStatus(updatedStatus) {
         // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-        currentStatus = updatedStatus;
-        socket.emit('update_status', id, currentStatus, wardenId);
-        // todo - update db with updated status
+        // only update status if different from current
+        if (updatedStatus !== currentUser.currentStatus) {
+            currentUser.currentStatus = updatedStatus;
+            socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
 
-        getStatusInfo();
+            getStatusInfo();
+        }
     };
 
-    function broadcastMessage(message) {
-        socket.emit('broadcast', message, companyName);
+    function broadcastMessage(message, wardensOnlyFlag) {
+        var roomName = currentUser.companyName
+        if (wardensOnlyFlag) {
+            roomName += '-wardens';
+        }
+        socket.emit('broadcast', message, roomName);
     };
   
     return {
@@ -334,7 +268,6 @@ var Module = (function () {
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
         isCurrentUserWarden: isCurrentUserWarden,
-        updatePersonnelInfo: updatePersonnelInfo,
         updateStatus: updateStatus,
         getStatusInfo: getStatusInfo,
         getCoordinateInfo: getCoordinateInfo,
@@ -348,7 +281,12 @@ $(function(){
     $("form").submit(function (event) {
         event.stopPropagation();
         event.preventDefault();
-        Module.validateLoginCredentials();
+        var email = $("#email").val(); // email from login form
+        if (email === '') {
+            // setting email for dev purposes only
+            email = 'awebbx@gmail.com';
+        }
+        $.post('/login', {emailAddress: email}, Module.validateLoginCredentials);
     });
 
     // navigating to alert page for the first time, create events for initiating evacuation
@@ -386,7 +324,12 @@ $(function(){
         $(document).on('click', '.send_message', function(event) {
             var message = document.getElementById('textarea').value;
             if (typeof(message) !== 'undefined' && message !== 'null' && message !== '') {
-                Module.broadcastMessage(message);
+                var wardensOnlyFlag = false;
+                var wardensOnlyRadioValue = $("input:radio[name ='radio-choice-h-2']:checked").val();
+                if (wardensOnlyRadioValue === 'on') {
+                    wardensOnlyFlag = true;
+                }
+                Module.broadcastMessage(message, wardensOnlyFlag);
                 console.log('broadcast sent');
             }
             document.getElementById('textarea').value = '';
@@ -413,7 +356,7 @@ $(function(){
         });
     });
 
-    // navigating to dashboard page, before page container show events, show the corrent navbar
+    // page container before show events
     $(document).on("pagecontainerbeforeshow", function () {
         var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
         var activePageId = activePage[0].id;
@@ -425,25 +368,16 @@ $(function(){
             else {
                 $('#warden_navbar').hide();
                 $('#employee_navbar').show();
+                Module.getStatusInfo();
             }
         }
     });
 
-    // navigating to dashboard page, page container show events
+    // page container show events
     $(document).on("pagecontainershow", function () {
         var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
         var activePageId = activePage[0].id;
-        if (activePageId === 'userDashboard') {
-            if (Module.isCurrentUserWarden()) {
-                // add employees to corresponding lists on personnel page
-                Module.updatePersonnelInfo();
-            }
-            else {
-                // set current evacuation procedure and user status
-                Module.getStatusInfo();
-            }
-        }
-        else if (activePageId === 'broadcast_popup') {
+        if (activePageId === 'broadcast_popup') {
             console.log('broadcast popup clicked');
             // $('#textarea').focus();  // removing because textarea focus causing issues on mobile safari
         }

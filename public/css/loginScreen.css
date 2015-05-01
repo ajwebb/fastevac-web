@@ -71,3 +71,6 @@ div.ui-slider-switch {
     position: absolute !important;
     right: 0 !important;
 }
+#form-password {
+	display: none;
+}

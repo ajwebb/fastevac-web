@@ -24,15 +24,14 @@
                         heading = e.alpha;
                     }
 
-                    //todo - calibrate heading to point to evac point
-                    //testing
+                    //testing - calibrate heading to point to evac point
                     if (typeof(currentLat) === 'undefined' || typeof(currentLong) === 'undefined') {
                         getCurrentLocation();
                     }
                     try {
-                        var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
-                        heading2 = heading2 * (180/Math.PI);
-                        console.log('head to specific evacuation point coords!' + heading2);
+                        // var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
+                        // heading2 = heading2 * (180/Math.PI);
+                        // console.log('head to specific evacuation point coords!' + heading2);
                     }
                     catch(err) {
                         console.log('Error calculating heading to evacuation point: ' + err.message);

@@ -52,6 +52,10 @@
 .ui-listview {
 	margin: 0!important;
 }
+.ui-listview li {
+	background: #f2f2f2!important;
+	font-weight: bold!important;
+}
 #checked_in_list_header a {
 	background-color: #166549!important;
 	border-color: #166549!important;
