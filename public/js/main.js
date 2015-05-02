@@ -35,7 +35,7 @@ var Module = (function () {
             this.wardenId = userData.wardenId;
         }
         this.mapCoordinates = userData.coordinates;
-    }
+    };
 
     // employee model
     var EmployeeModel = function(employeeData) {
@@ -43,12 +43,14 @@ var Module = (function () {
         this.name = employeeData.name;
         this.status = employeeData.status;
         this.phoneNo = employeeData.phoneNo;
-    }
+    };
 
     // get user from session
     function getUserFromSession() {
-
-    }
+        $.get('/usersession', function(userData) {
+            currentUser = CurrentUserModel(userData);
+        });
+    };
 
     // get employee information from the database and load the employees model
     function getPersonnelInfo() {
@@ -56,7 +58,7 @@ var Module = (function () {
             employees = personnelData;
             updatePersonnelInfo();
         });
-    }
+    };
 
     // update lists of employees with their current status, for evac coordinator only
     function updatePersonnelInfo() {
@@ -103,6 +105,7 @@ var Module = (function () {
         else {
             if (typeof(currentUser === 'undefined') || currentUser === null) {
                 // load current user from session cache
+                getUserFromSession();
             }
             return currentUser.mapCoordinates;
         }
@@ -141,18 +144,21 @@ var Module = (function () {
 
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
-        if (typeof(currentUser.wardenFlag) === 'undefined') {
-            if (Modernizr.sessionstorage) {
-                currentUser.wardenFlag = sessionStorage.getItem('wardenFlag');
+        if (typeof(currentUser) === 'undefined' || currentUser === null) {
+            getUserFromSession();
+
+            if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
+                return true;
             }
-            else {
-                // query wardenFlag from cache
-            }
-        }
-        if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
-            return true;
+            return false;
         }
         else {
+            if (Modernizr.sessionstorage && sessionStorage.getItem('wardenFlag') !== null) {
+                currentUser.wardenFlag = sessionStorage.getItem('wardenFlag');
+            }
+            if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
+                return true;
+            }
             return false;
         }
     };
@@ -162,7 +168,8 @@ var Module = (function () {
         // todo - initiate all employees as not checked in
         
         if (typeof(currentUser) === 'undefined') {
-            // query current user info from cache
+            // query current user info from session store
+            getUserFromSession();
         }
 
         // employee information for this warden

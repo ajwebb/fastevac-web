@@ -66,13 +66,24 @@ app.post('/login', function(req, res) {
 	};
 
 	mysql.get_user_data(callback, req.body.emailAddress);
+});
 
+// get user information from session
+app.get('/usersession', function(req, res) {
+	if (req.session.user !== null) {
+		console.log('logged in user: ' + req.session.user.name);
+		var sessionUser = req.session.user;
+		res.json(sessionUser);
+	}
+	else {
+		// unable to current logged in user, force login again
+		res.send(null);
+	}
 });
 
 // get employee data from mysql database and insert into redis cache
 app.get('/employees', function(req, res) {
 	console.log('warden id: ' + req.query.coordinatorId);
-	console.log('logged in as: ' + req.session.user.name);
 
 	var callback = function(err, results) {
 		console.log('number of employees: ' + results.length);
