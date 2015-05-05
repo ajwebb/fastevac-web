@@ -18,6 +18,7 @@ module.exports = {
 	            }
 	            else {
 	            	console.log('Error getting employee information from database for evacuation coordinator: ' + coordinatorId + ', Error: ' + err);
+	            	return callback(err, null);
 	            }         
 			});
 
@@ -29,12 +30,12 @@ module.exports = {
   		});
 	},
 
-	get_user_data: function(callback, emailAddress) {
+	find_user: function(callback, emailAddress) {
 		connectionPool.getConnection(function(err, connection) {
 	        if (err) {
 	            connection.release();
 	            console.log("Error connecting to mysql database");
-	            return callback(err, null);
+	            return callback(err, false);
 	        }
 
 	        console.log('connected to mysql as id ' + connection.threadId);
@@ -46,17 +47,24 @@ module.exports = {
 		    }, function(err, results) {
 	            connection.destroy(); // release
 	            if(!err) {
-	                return callback(null, results);
+	            	if (results.length === 0) {
+	            		return callback(null, false);
+	            	}
+	            	else {
+	            		var userJsonData = results[0];
+	            		return callback(null, userJsonData);
+	            	}
 	            }
 	            else {
 	            	console.log('Error executing user data query: ' + err);
+	            	return callback(err, false);
 	            }           
 	        });
 
 	        connection.on('error', function(err) {    
 	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
 	            console.log("Error connecting to mysql database: " + err);
-	            return callback(err, null);     
+	            return callback(err, false);     
 	        });
   		});
 	},
@@ -85,6 +93,60 @@ module.exports = {
 	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
 	            console.log("Error connecting to mysql database: " + err);
 	            return;     
+	        });
+  		});
+	},
+
+	update_company_status: function(companyid, status) {
+		connectionPool.getConnection(function(err, connection) {
+	        if (err) {
+	            connection.release();
+	            console.log("Error connecting to mysql database: " + err);
+	        }
+
+	        console.log('connected to mysql as id ' + connection.threadId);
+
+	        connection.query({
+		    	sql: 'UPDATE company SET status = ? WHERE id = ?',
+		    	timeout: 60000, // 60s 
+		    	values: [status, companyid]
+		    }, function(err, results) {
+	            connection.destroy(); // release
+	            if(err) {
+	            	console.log('Error executing query to update company status: ' + err);
+	            }           
+	        });
+
+	        connection.on('error', function(err) {    
+	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
+	            console.log("Error connecting to mysql database: " + err);  
+	        });
+  		});
+	},
+
+	update_user_status: function(userid, status) {
+		connectionPool.getConnection(function(err, connection) {
+	        if (err) {
+	            connection.release();
+	            console.log("Error connecting to mysql database: " + err);
+	        }
+
+	        console.log('connected to mysql as id ' + connection.threadId);
+
+	        connection.query({
+		    	sql: 'UPDATE employees SET status = ? WHERE id = ?',
+		    	timeout: 60000, // 60s 
+		    	values: [status, userid]
+		    }, function(err, results) {
+	            connection.destroy(); // release
+	            if(err) {
+	            	console.log('Error executing query to update user status: ' + err);
+	            }           
+	        });
+
+	        connection.on('error', function(err) {    
+	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
+	            console.log("Error connecting to mysql database: " + err);  
 	        });
   		});
 	}

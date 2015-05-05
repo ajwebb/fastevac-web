@@ -45,13 +45,6 @@ var Module = (function () {
         this.phoneNo = employeeData.phoneNo;
     };
 
-    // get user from session
-    function getUserFromSession() {
-        $.get('/usersession', function(userData) {
-            currentUser = CurrentUserModel(userData);
-        });
-    };
-
     // get employee information from the database and load the employees model
     function getPersonnelInfo() {
         $.get('/employees', {coordinatorId: currentUser.id}, function(personnelData) {
@@ -62,10 +55,6 @@ var Module = (function () {
 
     // update lists of employees with their current status, for evac coordinator only
     function updatePersonnelInfo() {
-        if (employees.length === 0) {
-            // get personnel info from redis cache
-        }
-
         var needAssistanceEmployees = [];
         var notCheckedInEmployees = [];
         var checkedInEmployees = [];
@@ -82,11 +71,15 @@ var Module = (function () {
                     notCheckedInEmployees.push($('<li>', {text: employees[i].name}));
                     break;
             }
-        };
+        }
 
         $('#need_assistance_counter').text(needAssistanceEmployees.length);
         $('#not_checked_in_counter').text(notCheckedInEmployees.length);
         $('#checked_in_counter').text(checkedInEmployees.length);
+
+        $('#need_assistance_employees').empty();
+        $('#not_checked_in_employees').empty();
+        $('#checked_in_employees').empty();
 
         $('#need_assistance_employees').append(needAssistanceEmployees);
         $('#not_checked_in_employees').append(notCheckedInEmployees);
@@ -104,19 +97,23 @@ var Module = (function () {
         }
         else {
             if (typeof(currentUser === 'undefined') || currentUser === null) {
-                // load current user from session cache
-                getUserFromSession();
+                return null;
             }
             return currentUser.mapCoordinates;
         }
     };
 
+    // verify user credentials after submitting login form
     function validateLoginCredentials(userData) {
         if (userData === null || userData === '') {
+            // user not found
+            document.getElementById('email').value = '';
+            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
             alert('Invalid Login Credentials: User not found');
         }
         else {
             currentUser = new CurrentUserModel(userData);
+
             if (Modernizr.sessionstorage) {
                 sessionStorage.setItem('mapCoords', JSON.stringify(currentUser.mapCoordinates));
                 sessionStorage.setItem('wardenFlag', currentUser.wardenFlag);
@@ -142,14 +139,21 @@ var Module = (function () {
         }
     };
 
+    // navigate to new page, login information is required
+    function actionRequireLogin(userData) {
+        if (userData === null || userData === '') {
+            // no user data in session, log in again
+            document.getElementById('email').value = '';
+            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
+        }
+        else {
+            currentUser = new CurrentUserModel(userData);
+        }
+    }
+
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
         if (typeof(currentUser) === 'undefined' || currentUser === null) {
-            getUserFromSession();
-
-            if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
-                return true;
-            }
             return false;
         }
         else {
@@ -163,20 +167,11 @@ var Module = (function () {
         }
     };
 
-    function triggerAlert() {
+    function triggerAlert(userData) {
         // todo - send push notifications or messages to all employees
         // todo - initiate all employees as not checked in
-        
-        if (typeof(currentUser) === 'undefined') {
-            // query current user info from session store
-            getUserFromSession();
-        }
 
-        // employee information for this warden
-        getPersonnelInfo();
-
-        // set company status to evacuation mode, todo - update db/cache
-        currentUser.companyStatus = 1; // 1 = alert/evacuation mode
+        currentUser = new CurrentUserModel(userData);
 
         // create socket room for company
         socket.emit('join', currentUser.id, currentUser.companyName, true);
@@ -251,15 +246,11 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
-    function updateStatus(updatedStatus) {
+    function updateStatus(userData) {
         // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-        // only update status if different from current
-        if (updatedStatus !== currentUser.currentStatus) {
-            currentUser.currentStatus = updatedStatus;
-            socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
-
-            getStatusInfo();
-        }
+        actionRequireLogin(userData);
+        socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
+        getStatusInfo();
     };
 
     function broadcastMessage(message, wardensOnlyFlag) {
@@ -278,7 +269,9 @@ var Module = (function () {
         updateStatus: updateStatus,
         getStatusInfo: getStatusInfo,
         getCoordinateInfo: getCoordinateInfo,
-        broadcastMessage: broadcastMessage
+        broadcastMessage: broadcastMessage,
+        actionRequireLogin: actionRequireLogin,
+        getPersonnelInfo: getPersonnelInfo
     };
 
 })();
@@ -299,11 +292,14 @@ $(function(){
     // navigating to alert page for the first time, create events for initiating evacuation
     $(document).on('pagecreate', '#alertScreen', function() {
         console.log('alert page');
+
+        $.get('/alertpage', Module.actionRequireLogin);
+        
     	$(document).on('click', '.confirm_alert', function(event) {
     		console.log('confirmed alert');
 	        event.stopPropagation();
 	        event.preventDefault();
-            Module.triggerAlert();
+            $.get('/triggeralert', Module.triggerAlert);
 	    });
     });
 
@@ -311,14 +307,31 @@ $(function(){
     $(document).on('pagecreate', '#userDashboard', function() {
         console.log('user dashboard');
 
-        // initialize map
-        Module.setStaticMap();
+        $.get('/dashboard', function(userData) {
+            //initialize user
+            Module.actionRequireLogin(userData);
+
+            // initialize map
+            Module.setStaticMap();
+
+            // initialize compass
+            Compass.initCompass();
+
+            // show the correct navbar
+            if (Module.isCurrentUserWarden()) {
+                $('#employee_navbar').hide();
+                $('#warden_navbar').show();
+                Module.getPersonnelInfo();
+            }
+            else {
+                $('#warden_navbar').hide();
+                $('#employee_navbar').show();
+                Module.getStatusInfo();
+            }
+        });
 
         // need to resize map on device orientation change
         $(window).on("throttledresize", Module.setStaticMap);
-
-        // initialize compass
-        Compass.initCompass();
 
         // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
         $(document).on('click', '.ui-navbar a', function(event) {
@@ -353,13 +366,13 @@ $(function(){
         // user checks in
         $(document).on('click', '.check_in_button', function(event) {
             console.log('user checking in');
-            Module.updateStatus(1);
+            $.get('/updateStatus', {status: 1}, Module.updateStatus);
         });
 
         // user needs assistance
         $(document).on('click', '.need_assistance_button', function(event) {
             console.log('user needs assistance');
-            Module.updateStatus(2);
+            $.get('/updateStatus', {status: 2}, Module.updateStatus);
         });
     });
 
@@ -367,17 +380,6 @@ $(function(){
     $(document).on("pagecontainerbeforeshow", function () {
         var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
         var activePageId = activePage[0].id;
-        if (activePageId === 'userDashboard') {
-            if (Module.isCurrentUserWarden()) {
-                $('#employee_navbar').hide();
-                $('#warden_navbar').show();
-            }
-            else {
-                $('#warden_navbar').hide();
-                $('#employee_navbar').show();
-                Module.getStatusInfo();
-            }
-        }
     });
 
     // page container show events

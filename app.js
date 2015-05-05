@@ -45,49 +45,84 @@ app.get('/', function(req, res) {
 app.post('/login', function(req, res) {
 	console.log('email logging in as: ' + req.body.emailAddress);
 
-	var callback = function(err, results) {
-		console.log('results length is: ' + results.length);
-		if (results.length === 0) {
-			res.send(null);
+	var callback = function(err, user) {
+		if (!user) {
+			// no user found
+			console.log('No user found');
+			req.session.reset();
 			// res.status(404).json('User not found');
+
+			res.send(null);
 		}
 		else {
-			var userJsonData = results[0];
+			// manually adding coordinates to json object, todo - add values from db
+			user.coordinates = [{"latitude": 33.870037, "longitude": -117.921696}, {"latitude": 33.870254, "longitude": -117.921957}, {"latitude": 33.869827, "longitude": -117.921457}];
 
-			// manually adding coordinates to json object, todo - add values from db/cache
-			userJsonData.coordinates = [{"latitude": 33.870037, "longitude": -117.921696}, {"latitude": 33.870254, "longitude": -117.921957}, {"latitude": 33.869827, "longitude": -117.921457}];
-
-			// testing sessions
-			req.session.user = userJsonData;
+			// adding user to session
+			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
 
-			res.json(userJsonData);
+			res.json(user);
 		}
 	};
 
-	mysql.get_user_data(callback, req.body.emailAddress);
+	mysql.find_user(callback, req.body.emailAddress);
 });
 
-// get user information from session
-app.get('/usersession', function(req, res) {
-	if (req.session.user !== null) {
+// navigate to alert page
+app.get('/alertpage', function(req, res) {
+	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
 		var sessionUser = req.session.user;
 		res.json(sessionUser);
 	}
 	else {
-		// unable to current logged in user, force login again
 		res.send(null);
 	}
 });
 
-// get employee data from mysql database and insert into redis cache
+// trigger alert
+app.get('/triggeralert', function(req, res) {
+	if (req.session && req.session.user) {
+		console.log('logged in user: ' + req.session.user.name);
+
+		// update mysql db as of now
+		// mysql.update_company_status(req.session.user.companyId, 1);
+
+		req.session.user.companyStatus = 1;
+
+		var sessionUser = req.session.user;
+		res.json(sessionUser);
+	}
+	else {
+		res.send(null);
+	}
+});
+
+// navigate to dashboard
+app.get('/dashboard', function(req, res) {
+	if (req.session && req.session.user) {
+		console.log('logged in user: ' + req.session.user.name);
+		var sessionUser = req.session.user;
+		res.json(sessionUser);
+	}
+	else {
+		res.send(null);
+	}
+});
+
+// get employee data from mysql database and todo-insert into redis cache
 app.get('/employees', function(req, res) {
 	console.log('warden id: ' + req.query.coordinatorId);
 
 	var callback = function(err, results) {
 		console.log('number of employees: ' + results.length);
-		res.json(results);
+		if (results.length !== 0) {
+			res.json(results);
+		}
+		else {
+			res.send(null);
+		}
 	}
 
 	mysql.get_employees_data(callback, req.query.coordinatorId);
@@ -96,6 +131,25 @@ app.get('/employees', function(req, res) {
 // get information for specific employee
 app.get('/employees/:id', function(req, res) {
 	console.log('current information for employee id: ' + req.params.id);
+});
+
+// update employee status
+app.get('/updateStatus', function(req, res) {
+	var newStatus = req.query.status;
+
+	if (req.session && req.session.user) {
+		console.log('logged in user: ' + req.session.user.name);
+
+		// update user status in database
+		mysql.update_user_status(req.session.user.id, newStatus);
+		req.session.user.status = newStatus;
+
+		var sessionUser = req.session.user;
+		res.json(sessionUser);
+	}
+	else {
+		res.send(null);
+	}
 });
 
 // socket io

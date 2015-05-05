@@ -101,7 +101,7 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs
-                    Module.updateStatus(1);
+                    $.get('/updateStatus', {status: 1}, Module.updateStatus);
                 };
                 distance = Math.round(distance);
                 txtDistance = distance + ' ft';
