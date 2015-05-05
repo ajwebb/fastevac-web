@@ -8,12 +8,14 @@ var session = require('./modules/sessions');
 // redis info
 var redis = require("redis");
 var url = require('url');
-var redisURL = url.parse(process.env.REDISCLOUD_URL);
+// var redisURL = url.parse(process.env.REDISCLOUD_URL);
+var redisURL = url.parse('redis://rediscloud:GBReI0qL5kJg6xSn@pub-redis-18733.us-east-1-3.2.ec2.garantiadata.com:18733');
 var client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
 client.auth(redisURL.auth.split(":")[1]);
 
 // redis session store
-app.use(session.Sessions(client, process.env.cookie_secret));
+// app.use(session.Sessions(client, process.env.cookie_secret));
+app.use(session.Sessions(client, 'shhhhhh'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -114,9 +116,11 @@ app.get('/dashboard', function(req, res) {
 // get employee data from mysql database and todo-insert into redis cache
 app.get('/employees', function(req, res) {
 	console.log('warden id: ' + req.query.coordinatorId);
+	var wardenId = req.query.coordinatorId;
 
 	var callback = function(err, results) {
 		console.log('number of employees: ' + results.length);
+
 		if (results.length !== 0) {
 			res.json(results);
 		}
@@ -125,12 +129,17 @@ app.get('/employees', function(req, res) {
 		}
 	}
 
-	mysql.get_employees_data(callback, req.query.coordinatorId);
+	mysql.get_employees_data(callback, wardenId);
 });
 
 // get information for specific employee
 app.get('/employees/:id', function(req, res) {
 	console.log('current information for employee id: ' + req.params.id);
+
+	// example getting user info from redis cache
+	// client.HGETALL('employee:' + req.params.id, function(err, object) {
+	// 	console.log(object);
+	// });
 });
 
 // update employee status
@@ -188,7 +197,7 @@ io.on('connection', function(socket){
 		console.log('user ' + id + ' status updated to: ' + status);
 
 		// emit event to wardens
-		socket.broadcast.to(room + '-wardens').emit('employee_status_update');
+		socket.broadcast.to(room + '-wardens').emit('employee_status_update', id, status);
 	});
 
 	socket.on('disconnect', function() {

@@ -4,17 +4,17 @@
 
  var Compass = (function() {
 
-    var currentLat;
-    var currentLong;
     var rendezvousCoords;
 
  	function initCompass() {
-        getLocation();
         rendezvousCoords = Module.getCoordinateInfo();
+        getLocation();
 
         // Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
+                var currentLat;
+                var currentLong;
                 var heading = null;
                 if (e.alpha !== null) {
                     if (e.webkitCompassHeading) {
@@ -25,19 +25,27 @@
                     }
 
                     //testing - calibrate heading to point to evac point
-                    if (typeof(currentLat) === 'undefined' || typeof(currentLong) === 'undefined') {
-                        getCurrentLocation();
+                    if (Modernizr.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            currentLat = position.coords.latitude;
+                            currentLong = position.coords.longitude;
+                            console.log('logged current position');
+
+                            try {
+                                // var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
+                                // heading2 = heading2 * (180/Math.PI);
+                                // console.log('head to specific evacuation point coords!' + heading2);
+                            }
+                            catch(err) {
+                                console.log('Error calculating heading to evacuation point: ' + err.message);
+                            }
+                            finally {
+                                rotate(heading);
+                            }
+                        });
                     }
-                    try {
-                        // var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
-                        // heading2 = heading2 * (180/Math.PI);
-                        // console.log('head to specific evacuation point coords!' + heading2);
-                    }
-                    catch(err) {
-                        console.log('Error calculating heading to evacuation point: ' + err.message);
-                    }
-                    finally {
-                        rotate(heading);
+                    else {
+                        alert('Sorry, browser does not allow geolocation');
                     }
                 }
             }, false);
@@ -67,23 +75,7 @@
         }
     };
 
-    function getCurrentLocation() {
-        if (Modernizr.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                currentLat = position.coords.latitude;
-                currentLong = position.coords.longitude;
-                console.log('logged current position');
-            });
-        }
-        else {
-            alert('Sorry, browser does not allow geolocation');
-        }
-    };
-
     function watchPosition(position) {
-        currentLat = position.coords.latitude;
-        currentLong = position.coords.longitude;
-
         var txtDistance;
 
         var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);

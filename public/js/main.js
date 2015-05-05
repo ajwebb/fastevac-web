@@ -12,8 +12,9 @@ var Module = (function () {
         alert(message);
     });
 
-    socket.on('employee_status_update', function() {
-        alert('successfully received employee status update event');
+    socket.on('employee_status_update', function(employeeId, employeeStatus) {
+        getPersonnelInfo();
+        // alert('successfully received employee: ' + employeeId + ' status update to ' + employeeStatus + ' event');
     });
 
     var currentUser;
