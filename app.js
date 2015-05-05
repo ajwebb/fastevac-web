@@ -8,14 +8,12 @@ var session = require('./modules/sessions');
 // redis info
 var redis = require("redis");
 var url = require('url');
-// var redisURL = url.parse(process.env.REDISCLOUD_URL);
-var redisURL = url.parse('redis://rediscloud:GBReI0qL5kJg6xSn@pub-redis-18733.us-east-1-3.2.ec2.garantiadata.com:18733');
+var redisURL = url.parse(process.env.REDISCLOUD_URL);
 var client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
 client.auth(redisURL.auth.split(":")[1]);
 
 // redis session store
-// app.use(session.Sessions(client, process.env.cookie_secret));
-app.use(session.Sessions(client, 'shhhhhh'));
+app.use(session.Sessions(client, process.env.cookie_secret));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
