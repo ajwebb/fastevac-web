@@ -41,7 +41,7 @@ module.exports = {
 	        console.log('connected to mysql as id ' + connection.threadId);
 
 	        connection.query({
-		    	sql: 'SELECT e.id, e.name, e.status, e.coordinatorFlag, c.id AS companyId, c.name AS companyName, c.status AS companyStatus, e.phoneNo, e.coordinatorId FROM employees e INNER JOIN company c ON c.id=e.companyId WHERE e.email = ?',
+		    	sql: 'SELECT e.id, e.name, e.status, e.coordinatorFlag, c.id AS companyId, c.name AS companyName, c.status AS companyStatus, e.phoneNo, e.coordinatorId FROM employees e INNER JOIN company c ON c.id=e.companyId WHERE e.email = ?', 
 		    	timeout: 60000, // 60s 
 		    	values: [emailAddress]
 		    }, function(err, results) {

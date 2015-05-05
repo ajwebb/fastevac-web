@@ -28,7 +28,7 @@ var Module = (function () {
         this.companyId = userData.companyId;
         this.companyName = userData.companyName;
         this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
-        this.currentStatus = userData.status;
+        this.currentStatus = userData.status; // 0 = normal/not checked in, 1 = checked in, 2 = in need of assistance
         if (userData.wardenId === null) {
             this.wardenId = id;
         }
@@ -223,20 +223,20 @@ var Module = (function () {
         var companyStatusTxt;
         var userStatusTxt;
 
-        if (currentUser.companyStatus == 1) {
+        if (currentUser.companyStatus === 1) {
             companyStatusTxt = 'Proceed to Evacuation Zone';
         }
-        else if (currentUser.companyStatus == 2) {
+        else if (currentUser.companyStatus === 2) {
             companyStatusTxt = 'Evacuation Drill';
         }
         else {
             companyStatusTxt = 'Safe';
         }
 
-        if (currentUser.currentStatus == 1) {
+        if (currentUser.currentStatus === 1) {
             userStatusTxt = 'Checked In';
         }
-        else if (currentUser.currentStatus == 2) {
+        else if (currentUser.currentStatus === 2) {
             userStatusTxt = 'In Need of Assistance';
         }
         else {

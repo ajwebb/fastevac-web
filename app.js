@@ -49,7 +49,6 @@ app.post('/login', function(req, res) {
 		if (!user) {
 			// no user found
 			console.log('No user found');
-			req.session.reset();
 			// res.status(404).json('User not found');
 
 			res.send(null);
