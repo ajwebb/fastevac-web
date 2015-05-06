@@ -38,21 +38,41 @@ module.exports = {
 	            return callback(err, false);
 	        }
 
-	        console.log('connected to mysql as id ' + connection.threadId);
-
 	        connection.query({
 		    	sql: 'SELECT e.id, e.name, e.status, e.coordinatorFlag, c.id AS companyId, c.name AS companyName, c.status AS companyStatus, e.phoneNo, e.coordinatorId FROM employees e INNER JOIN company c ON c.id=e.companyId WHERE e.email = ?', 
 		    	timeout: 60000, // 60s 
 		    	values: [emailAddress]
 		    }, function(err, results) {
-	            connection.destroy(); // release
 	            if(!err) {
 	            	if (results.length === 0) {
 	            		return callback(null, false);
 	            	}
 	            	else {
 	            		var userJsonData = results[0];
-	            		return callback(null, userJsonData);
+
+	            		connection.query({
+					    	sql: 'SELECT latitude, longitude FROM coordinates WHERE companyId = ? ORDER BY coordinateType ASC',
+					    	timeout: 60000, // 60s 
+					    	values: [userJsonData.companyId]
+					    }, function(err, coordResults) {
+				            connection.destroy(); // release
+				            if(!err) {
+				            	if (coordResults.length === 0) {
+				            		console.log('No coordinates data found for companyId: ' + userJsonData.companyId);
+				            		userJsonData.coordinates = null;
+				            		return callback(null, userJsonData);
+				            	}
+				            	else {
+				            		var coordinatesJsonData = JSON.parse(JSON.stringify(coordResults));
+				            		userJsonData.coordinates = coordinatesJsonData;
+				            		return callback(null, userJsonData);
+				            	}
+				            }
+				            else {
+				            	console.log('Error retrieving coordinate data from the database: ' + err);
+				            	return null;
+				            }   
+				        });
 	            	}
 	            }
 	            else {
@@ -65,42 +85,6 @@ module.exports = {
 	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
 	            console.log("Error connecting to mysql database: " + err);
 	            return callback(err, false);     
-	        });
-  		});
-	},
-
-	get_coordinates_data: function(companyId) {
-		connectionPool.getConnection(function(err, connection) {
-	        if (err) {
-	            connection.release();
-	            console.log("Error connecting to mysql database: " + err);
-	            return null;
-	        }
-
-	        connection.query({
-		    	sql: 'SELECT latitude, longitude FROM coordinates WHERE companyId = ? ORDER BY coordinateType ASC',
-		    	timeout: 60000, // 60s 
-		    	values: [companyId]
-		    }, function(err, results) {
-	            connection.destroy(); // release
-	            if(!err) {
-	            	if (results.length === 0) {
-	            		return null;
-	            	}
-	            	else {
-	            		return results;
-	            	}
-	            }
-	            else {
-	            	console.log('Error retrieving coordinate data from the database: ' + err);
-	            	return null;
-	            }   
-	        });
-
-	        connection.on('error', function(err) {    
-	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
-	            console.log("Error connecting to mysql database: " + err);
-	            return null;     
 	        });
   		});
 	},
@@ -143,6 +127,33 @@ module.exports = {
 
 	        connection.query({
 		    	sql: 'UPDATE employees SET status = ? WHERE id = ?',
+		    	timeout: 60000, // 60s 
+		    	values: [status, userid]
+		    }, function(err, results) {
+	            connection.destroy(); // release
+	            if(err) {
+	            	console.log('Error executing query to update user status: ' + err);
+	            }           
+	        });
+
+	        connection.on('error', function(err) {    
+	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
+	            console.log("Error connecting to mysql database: " + err);  
+	        });
+  		});
+	},
+
+	update_all_employees_status: function(companyid, status) {
+		connectionPool.getConnection(function(err, connection) {
+	        if (err) {
+	            connection.release();
+	            console.log("Error connecting to mysql database: " + err);
+	        }
+
+	        console.log('connected to mysql as id ' + connection.threadId);
+
+	        connection.query({
+		    	sql: 'UPDATE employees SET status = ? WHERE companyId = ?',
 		    	timeout: 60000, // 60s 
 		    	values: [status, userid]
 		    }, function(err, results) {
