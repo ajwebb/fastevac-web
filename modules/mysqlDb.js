@@ -69,30 +69,38 @@ module.exports = {
   		});
 	},
 
-	get_coordinates_data: function(req, res) {
+	get_coordinates_data: function(companyId) {
 		connectionPool.getConnection(function(err, connection) {
 	        if (err) {
 	            connection.release();
-	            console.log("Error connecting to mysql database");
-	            return;
+	            console.log("Error connecting to mysql database: " + err);
+	            return null;
 	        }
 
 	        connection.query({
 		    	sql: 'SELECT latitude, longitude FROM coordinates WHERE companyId = ? ORDER BY coordinateType ASC',
 		    	timeout: 60000, // 60s 
-		    	values: [111111]
+		    	values: [companyId]
 		    }, function(err, results) {
 	            connection.destroy(); // release
 	            if(!err) {
-	            	console.log('returned ' + results.length + ' rows');
-	            	res.json(results);
-	            }           
+	            	if (results.length === 0) {
+	            		return null;
+	            	}
+	            	else {
+	            		return results;
+	            	}
+	            }
+	            else {
+	            	console.log('Error retrieving coordinate data from the database: ' + err);
+	            	return null;
+	            }   
 	        });
 
 	        connection.on('error', function(err) {    
 	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
 	            console.log("Error connecting to mysql database: " + err);
-	            return;     
+	            return null;     
 	        });
   		});
 	},

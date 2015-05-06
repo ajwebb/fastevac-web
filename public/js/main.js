@@ -183,7 +183,7 @@ var Module = (function () {
     function setStaticMap() {
         var w = $(document).width();
         var h = $(document).height();
-        var z = 19;
+        var z = 18;
         var s = 1;
         if (h > 104) {
             h = h - 104;
@@ -201,7 +201,7 @@ var Module = (function () {
             else {
                 h = (h-1)/2;
             }
-            z = 18;
+            z = 17;
             s = 2;
         }
         var mapCoordinates = getCoordinateInfo();

@@ -55,7 +55,7 @@ app.post('/login', function(req, res) {
 		}
 		else {
 			// manually adding coordinates to json object, todo - add values from db
-			user.coordinates = [{"latitude": 33.870037, "longitude": -117.921696}, {"latitude": 33.870254, "longitude": -117.921957}, {"latitude": 33.869827, "longitude": -117.921457}];
+			user.coordinates = [{"latitude": 33.640575, "longitude": -117.855977}, {"latitude": 33.640948, "longitude": -117.855556}, {"latitude": 33.641039, "longitude": -117.856353}];
 
 			// adding user to session
 			req.session.user = user;
