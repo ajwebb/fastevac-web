@@ -24,10 +24,14 @@
                     }
 
                     console.log('heading to coordinates: ' + coordsHeading);
-                    if (coordsHeading) {
-                        // rotate(heading - coordsHeading);
+                    if (!coordsHeading) {
+                        console.log('Unable to determine heading to coordinates of rendezvous point');
                     }
-                    rotate(heading);
+                    else {
+                        heading = heading - coordsHeading;
+                        rotate(heading);
+                    }
+                    // rotate(heading);
                 }
             }, false);
         };
