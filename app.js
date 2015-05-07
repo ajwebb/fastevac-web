@@ -3,17 +3,11 @@ var bodyParser = require('body-parser');
 var app = express();
 var server = require('http').createServer(app);
 var mysql = require('./modules/mysqlDb');
+var redis = require('./modules/redis');
 var session = require('./modules/sessions');
 
-// redis info
-var redis = require("redis");
-var url = require('url');
-var redisURL = url.parse(process.env.REDISCLOUD_URL);
-var client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
-client.auth(redisURL.auth.split(":")[1]);
-
-// redis session store
-app.use(session.Sessions(client, process.env.cookie_secret));
+// redis session
+app.use(session.Sessions(redis.client(), process.env.cookie_secret));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -129,11 +123,18 @@ app.get('/employees', function(req, res) {
 // get information for specific employee
 app.get('/employees/:id', function(req, res) {
 	console.log('current information for employee id: ' + req.params.id);
+	var employeeid = req.params.id;
 
-	// example getting user info from redis cache
-	// client.HGETALL('employee:' + req.params.id, function(err, object) {
-	// 	console.log(object);
-	// });
+	var callback = function(err, employeeData) {
+		if (!employeeData) {
+			res.send(null);
+		}
+		else {
+			res.json(employeeData);
+		}
+	}
+
+	mysql.get_employee_data(callback, employeeid);
 });
 
 // update employee status
@@ -179,9 +180,10 @@ io.on('connection', function(socket){
 	});
 
 	// evac coordinator broadcasting a message to all employees or only evac coordinators
-	socket.on('broadcast', function(message, room) {
+	socket.on('broadcast', function(name, message, room) {
 		if (rooms.length > 0 && rooms.indexOf(room) != -1) {
-			console.log('message was broadcasted');
+			console.log('message was broadcasted by: ' + name);
+			message = 'Broadcast from ' + name + ': ' + message;
 			socket.broadcast.to(room).emit('message_received', message);
 		}
 	});

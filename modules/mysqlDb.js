@@ -30,6 +30,40 @@ module.exports = {
   		});
 	},
 
+	get_employee_data: function(callback, employeeId) {
+		connectionPool.getConnection(function(err, connection) {
+	        if (err) {
+	            connection.release();
+	            console.log("Error connecting to mysql database");
+	            return callback(err, null);
+	        }
+
+	        var columns = ['id', 'name', 'status', 'phoneNo'];
+	        var query = connection.query('SELECT ?? FROM ?? WHERE id = ?', [columns, 'employees', employeeId], function(err, results) {
+				connection.destroy(); // release
+	            if(!err) {
+	            	if (results.length === 0) {
+	            		return callback(null, false);
+	            	}
+	            	else {
+		            	var employeeJsonData = results[0];
+		            	return callback(null, employeeJsonData);
+		            }
+	            }
+	            else {
+	            	console.log('Error getting employee information from database for employee id: ' + employeeId + ', Error: ' + err);
+	            	return callback(err, null);
+	            }         
+			});
+
+	        connection.on('error', function(err) {    
+	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
+	            console.log("Error connecting to mysql database: " + err);
+	            return callback(err, null);     
+	        });
+  		});
+	},
+
 	find_user: function(callback, emailAddress) {
 		connectionPool.getConnection(function(err, connection) {
 	        if (err) {
@@ -45,6 +79,7 @@ module.exports = {
 		    }, function(err, results) {
 	            if(!err) {
 	            	if (results.length === 0) {
+	            		connection.destroy();
 	            		return callback(null, false);
 	            	}
 	            	else {
@@ -76,15 +111,16 @@ module.exports = {
 	            	}
 	            }
 	            else {
+	            	connection.destroy();
 	            	console.log('Error executing user data query: ' + err);
-	            	return callback(err, false);
+	            	return callback(err, null);
 	            }           
 	        });
 
 	        connection.on('error', function(err) {    
 	        	// change error message to handle different errors i.e. maximum queue length and connection pool timeout
 	            console.log("Error connecting to mysql database: " + err);
-	            return callback(err, false);     
+	            return callback(err, null);     
 	        });
   		});
 	},

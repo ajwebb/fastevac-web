@@ -13,7 +13,6 @@ var Module = (function () {
     });
 
     socket.on('employee_status_update', function(employeeId, employeeStatus) {
-        // alert('successfully received employee: ' + employeeId + ' status update to ' + employeeStatus + ' event');
         getPersonnelInfo(); // refresh personnel list with updated statuses
     });
 
@@ -104,8 +103,10 @@ var Module = (function () {
         if (userData === null || userData === '') {
             // user not found
             document.getElementById('email').value = '';
+            var loginErrorMsg = 'Invalid Login Credentials: User not found';
+            $('.login_error_message').text(loginErrorMsg);
+            $('.login_error_message').show();
             $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
-            alert('Invalid Login Credentials: User not found');
         }
         else {
             currentUser = new CurrentUserModel(userData);
@@ -122,7 +123,6 @@ var Module = (function () {
                 }
                 else {
                     // successful login for warden where evacuation is already in process, join socket room for the the company
-                    getPersonnelInfo();
                     socket.emit('join', currentUser.id, currentUser.companyName, true);
                     $.mobile.changePage('#userDashboard');
                 }
@@ -136,7 +136,7 @@ var Module = (function () {
     };
 
     // navigate to new page, login information is required
-    function actionRequireLogin(userData) {
+    function actionRequireLogin(callback, userData) {
         if (userData === null || userData === '') {
             // no user data in session, log in again
             document.getElementById('email').value = '';
@@ -144,6 +144,8 @@ var Module = (function () {
         }
         else {
             currentUser = new CurrentUserModel(userData);
+            if (!callback) return;
+            callback();
         }
     }
 
@@ -163,11 +165,9 @@ var Module = (function () {
         }
     };
 
-    function triggerAlert(userData) {
+    function triggerAlert() {
         // todo - send push notifications or messages to all employees
         // todo - initiate all employees as not checked in
-
-        currentUser = new CurrentUserModel(userData);
 
         // create socket room for company
         socket.emit('join', currentUser.id, currentUser.companyName, true);
@@ -252,11 +252,13 @@ var Module = (function () {
     };
 
     function broadcastMessage(message, wardensOnlyFlag) {
-        var roomName = currentUser.companyName
-        if (wardensOnlyFlag) {
-            roomName += '-wardens';
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            var roomName = currentUser.companyName
+            if (wardensOnlyFlag) {
+                roomName += '-wardens';
+            }
+            socket.emit('broadcast', currentUser.name, message, roomName);
         }
-        socket.emit('broadcast', message, roomName);
     };
   
     return {
@@ -291,13 +293,17 @@ $(function(){
     $(document).on('pagecreate', '#alertScreen', function() {
         console.log('alert page');
 
-        $.get('/alertpage', Module.actionRequireLogin);
+        $.get('/alertpage', function(userData) {
+            Module.actionRequireLogin(null, userData);
+        });
         
     	$(document).on('click', '.confirm_alert', function(event) {
     		console.log('confirmed alert');
 	        event.stopPropagation();
 	        event.preventDefault();
-            $.get('/triggeralert', Module.triggerAlert);
+            $.get('/triggeralert', function(userData) {
+                Module.actionRequireLogin(Module.triggerAlert, userData);
+            });
 	    });
     });
 
@@ -305,26 +311,34 @@ $(function(){
     $(document).on('pagecreate', '#userDashboard', function() {
         console.log('user dashboard');
 
-        $.get('/dashboard', function(userData) {
-            //initialize user
-            Module.actionRequireLogin(userData);
-
+        function dashboardCallback() {
             // initialize map
             Module.setStaticMap();
 
             // initialize compass
             Compass.initCompass();
 
-            // show the correct navbar
+            // get personnel data if warden
             if (Module.isCurrentUserWarden()) {
+                Module.getPersonnelInfo();
+            }
+            else {
+                Module.getStatusInfo();
+            }
+        }
+
+        $.get('/dashboard', function(userData) {
+            //initialize user
+            Module.actionRequireLogin(dashboardCallback, userData);
+
+            // show the correct navbar
+            if (userData.coordinatorFlag == 1) {
                 $('#employee_navbar').hide();
                 $('#warden_navbar').show();
-                Module.getPersonnelInfo();
             }
             else {
                 $('#warden_navbar').hide();
                 $('#employee_navbar').show();
-                Module.getStatusInfo();
             }
         });
 

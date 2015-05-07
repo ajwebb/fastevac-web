@@ -74,3 +74,8 @@ div.ui-slider-switch {
 #form-password {
 	display: none;
 }
+.login_error_message {
+	display: none;
+	text-align: center;
+	color: red;
+}
