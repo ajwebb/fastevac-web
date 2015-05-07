@@ -5,6 +5,7 @@
  var Compass = (function() {
 
     var rendezvousCoords;
+    var coordsHeading;
 
  	function initCompass() {
         rendezvousCoords = Module.getCoordinateInfo();
@@ -13,8 +14,6 @@
         // Check for support for DeviceOrientation event
         if (window.DeviceOrientationEvent) {
             window.addEventListener("deviceorientation", function (e) {
-                var currentLat;
-                var currentLong;
                 var heading = null;
                 if (e.alpha !== null) {
                     if (e.webkitCompassHeading) {
@@ -24,28 +23,34 @@
                         heading = e.alpha;
                     }
 
-                    // rotate(heading);
+                    console.log('heading to coordinates: ' + coordsHeading);
+                    if (coordsHeading) {
+                        // rotate(heading - coordsHeading);
+                    }
+                    rotate(heading);
                 }
             }, false);
         };
     };
 
+    // rotate compass
  	function rotate(deg) {  
         $('.pointer').css('transform', 'rotate(' + (deg) + 'deg)');
     };
 
+    // calculate correct heading towards coordinates from current location
     function getHeadingFromCoordinates(fromLat, fromLon, toLat, toLon) {
         var fLat = (fromLat/180)*Math.PI;
         var fLng = (fromLon/180)*Math.PI;
         var tLat = (toLat/180)*Math.PI;
         var tLng = (toLon/180)*Math.PI;
 
-        var testHeading = Math.atan2(Math.sin(fLng-tLng)*Math.cos(tLat), Math.cos(fLat)*Math.sin(tLat)-Math.sin(fLat)*Math.cos(tLat)*Math.cos(fLng-tLng));
-        testHeading = testHeading * (180/Math.PI);
+        var calcHeading = Math.atan2(Math.sin(fLng-tLng)*Math.cos(tLat), Math.cos(fLat)*Math.sin(tLat)-Math.sin(fLat)*Math.cos(tLat)*Math.cos(fLng-tLng));
+        calcHeading = calcHeading * (180/Math.PI);
 
-        console.log('testing heading to specific evacuation point coords! ' + testHeading);
+        console.log('testing heading to specific evacuation point coords! ' + calcHeading);
 
-        rotate(testHeading);
+        coordsHeading = calcHeading;
     };
 
     var geoOptions = {
@@ -75,7 +80,6 @@
         if (rendezvousCoords.length > 1) {
             var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
-            // testing custom heading towards evac pt
             getHeadingFromCoordinates(position.coords.latitude, position.coords.longitude, rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
             var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
