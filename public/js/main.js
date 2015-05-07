@@ -13,8 +13,8 @@ var Module = (function () {
     });
 
     socket.on('employee_status_update', function(employeeId, employeeStatus) {
-        getPersonnelInfo();
         // alert('successfully received employee: ' + employeeId + ' status update to ' + employeeStatus + ' event');
+        getPersonnelInfo(); // refresh personnel list with updated statuses
     });
 
     var currentUser;
@@ -29,12 +29,7 @@ var Module = (function () {
         this.companyName = userData.companyName;
         this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
         this.currentStatus = userData.status; // 0 = normal/not checked in, 1 = checked in, 2 = in need of assistance
-        if (userData.wardenId === null) {
-            this.wardenId = id;
-        }
-        else {
-            this.wardenId = userData.wardenId;
-        }
+        this.wardenId = userData.wardenId;
         this.mapCoordinates = userData.coordinates;
     };
 
@@ -223,24 +218,26 @@ var Module = (function () {
         var companyStatusTxt;
         var userStatusTxt;
 
-        if (currentUser.companyStatus === 1) {
-            companyStatusTxt = 'Proceed to Evacuation Zone';
-        }
-        else if (currentUser.companyStatus === 2) {
-            companyStatusTxt = 'Evacuation Drill';
-        }
-        else {
-            companyStatusTxt = 'Safe';
-        }
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            if (currentUser.companyStatus == 1) {
+                companyStatusTxt = 'Proceed to Evacuation Zone';
+            }
+            else if (currentUser.companyStatus == 2) {
+                companyStatusTxt = 'Evacuation Drill';
+            }
+            else {
+                companyStatusTxt = 'Safe';
+            }
 
-        if (currentUser.currentStatus === 1) {
-            userStatusTxt = 'Checked In';
-        }
-        else if (currentUser.currentStatus === 2) {
-            userStatusTxt = 'In Need of Assistance';
-        }
-        else {
-            userStatusTxt = 'Not Checked In';
+            if (currentUser.currentStatus == 1) {
+                userStatusTxt = 'Checked In';
+            }
+            else if (currentUser.currentStatus == 2) {
+                userStatusTxt = 'In Need of Assistance';
+            }
+            else {
+                userStatusTxt = 'Not Checked In';
+            }
         }
 
         $('.evacuation_status_txt').text(companyStatusTxt);
@@ -250,7 +247,7 @@ var Module = (function () {
     function updateStatus(userData) {
         // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
         actionRequireLogin(userData);
-        socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
+        socket.emit('update_status', userData.id, userData.companyName, userData.status);
         getStatusInfo();
     };
 

@@ -24,29 +24,7 @@
                         heading = e.alpha;
                     }
 
-                    //testing - calibrate heading to point to evac point
-                    if (Modernizr.geolocation) {
-                        navigator.geolocation.getCurrentPosition(function(position) {
-                            currentLat = position.coords.latitude;
-                            currentLong = position.coords.longitude;
-                            console.log('logged current position');
-
-                            try {
-                                // var heading2 = Math.atan2(Math.sin(rendezvousCoords[1].longitutde-currentLong)*Math.cos(rendezvousCoords[1].latitude), Math.cos(currentLat)*Math.sin(rendezvousCoords[1].latitude) - Math.sin(currentLat)*Math.cos(rendezvousCoords[1].latitude)*Math.cos(rendezvousCoords[1].longitutde-currentLong));
-                                // heading2 = heading2 * (180/Math.PI);
-                                // console.log('head to specific evacuation point coords!' + heading2);
-                            }
-                            catch(err) {
-                                console.log('Error calculating heading to evacuation point: ' + err.message);
-                            }
-                            finally {
-                                rotate(heading);
-                            }
-                        });
-                    }
-                    else {
-                        alert('Sorry, browser does not allow geolocation');
-                    }
+                    // rotate(heading);
                 }
             }, false);
         };
@@ -54,6 +32,20 @@
 
  	function rotate(deg) {  
         $('.pointer').css('transform', 'rotate(' + (deg) + 'deg)');
+    };
+
+    function getHeadingFromCoordinates(fromLat, fromLon, toLat, toLon) {
+        var fLat = (fromLat/180)*Math.PI;
+        var fLng = (fromLon/180)*Math.PI;
+        var tLat = (toLat/180)*Math.PI;
+        var tLng = (toLon/180)*Math.PI;
+
+        var testHeading = Math.atan2(Math.sin(fLng-tLng)*Math.cos(tLat), Math.cos(fLat)*Math.sin(tLat)-Math.sin(fLat)*Math.cos(tLat)*Math.cos(fLng-tLng));
+        testHeading = testHeading * (180/Math.PI);
+
+        console.log('testing heading to specific evacuation point coords! ' + testHeading);
+
+        rotate(testHeading);
     };
 
     var geoOptions = {
@@ -83,6 +75,9 @@
         if (rendezvousCoords.length > 1) {
             var evacPt = new google.maps.LatLng(rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
 
+            // testing custom heading towards evac pt
+            getHeadingFromCoordinates(position.coords.latitude, position.coords.longitude, rendezvousCoords[1].latitude, rendezvousCoords[1].longitude);
+
             var distance = google.maps.geometry.spherical.computeDistanceBetween(currentLocation, evacPt);
             distance = distance * 3.28084; // convert from meters to feet
             if (distance > 2640) {
@@ -92,7 +87,7 @@
             }
             else {
                 if (distance < 25) {
-                    // automatic checkin occurs
+                    // automatic checkin occurs within 25 feet
                     $.get('/updateStatus', {status: 1}, Module.updateStatus);
                 };
                 distance = Math.round(distance);
