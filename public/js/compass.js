@@ -9,6 +9,9 @@
     var watchId;
 
  	function initCompass() {
+        var calcCompassRteTxt = 'Determining distance...';
+        $('.compass_distance').text(calcCompassRteTxt);
+
         rendezvousCoords = Module.getCoordinateInfo();
         getLocation();
 
@@ -97,6 +100,11 @@
                     $.get('/updateStatus', {status: 1}, function(userData) {
                         Module.actionRequireLogin(Module.updateStatus, userData);
                         console.log('User has reached the evacuation zone: ' + userData.name);
+
+                        // notify user they have arrived at the evac point
+                        var arrEvacPtTxt = 'Arrived';
+                        $('.compass_distance').text(arrEvacPtTxt);
+
                         // clear watch
                         navigator.geolocation.clearWatch(watchId);
                     });
