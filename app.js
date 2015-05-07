@@ -142,12 +142,11 @@ app.get('/updateStatus', function(req, res) {
 	var newStatus = req.query.status;
 
 	if (req.session && req.session.user) {
-		console.log('logged in user: ' + req.session.user.name);
-
-		// update user status in database
-		mysql.update_user_status(req.session.user.id, newStatus);
-		req.session.user.status = newStatus;
-
+		// update user status in database if different from current session
+		if (newStatus !== req.session.user.status) {
+			mysql.update_user_status(req.session.user.id, newStatus);
+			req.session.user.status = newStatus;
+		}
 		var sessionUser = req.session.user;
 		res.json(sessionUser);
 	}

@@ -6,6 +6,7 @@
 
     var rendezvousCoords;
     var coordsHeading;
+    var watchId;
 
  	function initCompass() {
         rendezvousCoords = Module.getCoordinateInfo();
@@ -66,7 +67,7 @@
 
     function getLocation() {
         if (Modernizr.geolocation) {
-            navigator.geolocation.watchPosition(watchPosition, geoError, geoOptions);
+            watchId = navigator.geolocation.watchPosition(watchPosition, geoError, geoOptions);
         }
         else {
             alert('Sorry, browser does not allow geolocation');
@@ -93,7 +94,12 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
-                    $.get('/updateStatus', {status: 1}, Module.updateStatus);
+                    $.get('/updateStatus', {status: 1}, function(userData) {
+                        Module.actionRequireLogin(Module.updateStatus, userData);
+                        console.log('User has reached the evacuation zone: ' + userData.name);
+                        // clear watch
+                        navigator.geolocation.clearWatch(watchId);
+                    });
                 };
                 distance = Math.round(distance);
                 txtDistance = distance + ' ft';

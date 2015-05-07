@@ -244,11 +244,12 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
-    function updateStatus(userData) {
-        // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-        actionRequireLogin(userData);
-        socket.emit('update_status', userData.id, userData.companyName, userData.status);
-        getStatusInfo();
+    function updateStatus() {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
+            socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
+            getStatusInfo();
+        }
     };
 
     function broadcastMessage(message, wardensOnlyFlag) {
@@ -378,13 +379,17 @@ $(function(){
         // user checks in
         $(document).on('click', '.check_in_button', function(event) {
             console.log('user checking in');
-            $.get('/updateStatus', {status: 1}, Module.updateStatus);
+            $.get('/updateStatus', {status: 1}, function(userData) {
+                Module.actionRequireLogin(Module.updateStatus, userData);
+            });
         });
 
         // user needs assistance
         $(document).on('click', '.need_assistance_button', function(event) {
             console.log('user needs assistance');
-            $.get('/updateStatus', {status: 2}, Module.updateStatus);
+            $.get('/updateStatus', {status: 2}, function(userData) {
+                Module.actionRequireLogin(Module.updateStatus, userData);
+            });
         });
     });
 
