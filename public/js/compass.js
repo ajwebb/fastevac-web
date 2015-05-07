@@ -23,15 +23,14 @@
                         heading = e.alpha;
                     }
 
-                    console.log('heading to coordinates: ' + coordsHeading);
                     if (!coordsHeading) {
                         console.log('Unable to determine heading to coordinates of rendezvous point');
                     }
                     else {
-                        heading = heading - coordsHeading;
-                        rotate(heading);
+                        console.log('heading to coordinates: ' + coordsHeading);
+                        var evacheading = heading - coordsHeading;
+                        rotate(evacheading);
                     }
-                    // rotate(heading);
                 }
             }, false);
         };
@@ -51,8 +50,6 @@
 
         var calcHeading = Math.atan2(Math.sin(fLng-tLng)*Math.cos(tLat), Math.cos(fLat)*Math.sin(tLat)-Math.sin(fLat)*Math.cos(tLat)*Math.cos(fLng-tLng));
         calcHeading = calcHeading * (180/Math.PI);
-
-        console.log('testing heading to specific evacuation point coords! ' + calcHeading);
 
         coordsHeading = calcHeading;
     };
