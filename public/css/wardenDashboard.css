@@ -7,10 +7,6 @@
 .ui-navbar {
 	height: 56px;
 }
-.warden_map:after {
-	background: url("../img/icons/globe.png") 50% 50% no-repeat; 
-	background-size: 24px 22px; 
-}
 #warden_map_content {
     padding: 0;
     position : absolute !important; 
