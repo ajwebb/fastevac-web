@@ -101,12 +101,14 @@ var Module = (function () {
     // verify user credentials after submitting login form
     function validateLoginCredentials(userData) {
         if (userData === null || userData === '') {
-            // user not found
+            // user not found - redirect back to login page
             document.getElementById('email').value = '';
+            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
+
+            // show error message
             var loginErrorMsg = 'Invalid Login Credentials: User not found';
             $('.login_error_message').text(loginErrorMsg);
             $('.login_error_message').show();
-            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
         }
         else {
             currentUser = new CurrentUserModel(userData);
@@ -144,8 +146,12 @@ var Module = (function () {
         }
         else {
             currentUser = new CurrentUserModel(userData);
-            if (!callback) return;
-            callback();
+            if (!callback) {
+                return
+            }
+            else {
+                callback();
+            }
         }
     }
 
@@ -282,7 +288,7 @@ $(function(){
     $("form").submit(function (event) {
         event.stopPropagation();
         event.preventDefault();
-        var email = $("#email").val(); // email from login form
+        var email = $('#email').val(); // email from login form
         if (email === '') {
             // setting email for dev purposes only
             email = 'awebbx@gmail.com';

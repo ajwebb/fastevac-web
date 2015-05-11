@@ -9,8 +9,8 @@
     var watchId;
 
  	function initCompass() {
-        var calcCompassRteTxt = 'Determining distance...';
-        $('.compass_distance').text(calcCompassRteTxt);
+        var calcDistanceTxt = 'Calculating distance...';
+        $('.compass_distance').text(calcDistanceTxt);
 
         rendezvousCoords = Module.getCoordinateInfo();
         getLocation();
@@ -79,6 +79,7 @@
 
     function watchPosition(position) {
         var txtDistance;
+        var txtUnavailableDist = 'No evacuation point available';
 
         var currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
@@ -114,7 +115,7 @@
             }
         }
         else {
-            txtDistance = 'No evacuation point available';
+            txtDistance = txtUnavailableDist;
         }
         $('.compass_distance').text(txtDistance);
     };

@@ -5,9 +5,10 @@ var server = require('http').createServer(app);
 var mysql = require('./modules/mysqlDb');
 var redis = require('./modules/redis');
 var session = require('./modules/sessions');
+var client = redis.client();
 
 // redis session
-app.use(session.Sessions(redis.client(), process.env.cookie_secret));
+app.use(session.Sessions(client, process.env.cookie_secret));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
