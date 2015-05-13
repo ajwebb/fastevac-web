@@ -2,9 +2,9 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var server = require('http').createServer(app);
-var mysql = require('./modules/mysqlDb');
-var redis = require('./modules/redis');
-var session = require('./modules/sessions');
+var mysql = require('./lib/mysqlDb');
+var redis = require('./lib/redis');
+var session = require('./lib/sessions');
 var client = redis.client();
 
 // redis session
