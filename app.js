@@ -162,6 +162,11 @@ app.get('/employees/:id', getEmployeeData);
 // update employee status
 app.get('/updateStatus', activeUser, updateStatus, renderPage);
 
+// not found error
+app.get('*', function(req, res) {
+	res.render('404.html');
+});
+
 // socket io
 var rooms = [];
 
