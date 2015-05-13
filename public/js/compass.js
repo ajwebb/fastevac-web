@@ -32,8 +32,8 @@
                     }
                     else {
                         console.log('heading to coordinates: ' + coordsHeading);
-                        var evacheading = heading - coordsHeading;
-                        rotate(evacheading);
+                        var evacHeading = heading - coordsHeading;
+                        rotate(evacHeading);
                     }
                 }
             }, false);

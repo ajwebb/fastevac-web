@@ -36,74 +36,68 @@ app.get('/', function(req, res) {
     res.render('index.html');
 });
 
-// get user data from mysql database
-app.post('/login', function(req, res) {
+var authorizeLogin = function(req, res, next) {
 	console.log('email logging in as: ' + req.body.emailAddress);
 
 	var callback = function(err, user) {
 		if (!user) {
 			// no user found
 			console.log('No user found');
-			// res.status(404).json('User not found');
-
 			res.send(null);
 		}
 		else {
 			// adding user to session
 			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
-
-			res.json(user);
+			// res.json(user);
+			return next();
 		}
 	};
 
+	// get user data from mysql database
 	mysql.find_user(callback, req.body.emailAddress);
-});
+};
 
-// navigate to alert page
-app.get('/alertpage', function(req, res) {
+var activeUser = function(req, res, next) {
 	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
-		var sessionUser = req.session.user;
-		res.json(sessionUser);
+		return next();
 	}
 	else {
 		res.send(null);
 	}
-});
+};
 
-// trigger alert
-app.get('/triggeralert', function(req, res) {
+var authorizeWarden = function(req, res, next) {
 	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
 
-		// update mysql db as of now
-		// mysql.update_company_status(req.session.user.companyId, 1);
-
-		req.session.user.companyStatus = 1;
-
-		var sessionUser = req.session.user;
-		res.json(sessionUser);
+		if (req.session.user.coordinatorFlag != 1) {
+			console.log('not a coordinator');
+			res.send(null);
+		}
+		else {
+			return next();
+		}
 	}
 	else {
 		res.send(null);
 	}
-});
+}
 
-// navigate to dashboard
-app.get('/dashboard', function(req, res) {
-	if (req.session && req.session.user) {
-		console.log('logged in user: ' + req.session.user.name);
-		var sessionUser = req.session.user;
-		res.json(sessionUser);
-	}
-	else {
-		res.send(null);
-	}
-});
+var renderPage = function(req, res) {
+	res.json(req.session.user);
+};
 
-// get employee data from mysql database and todo-insert into redis cache
-app.get('/employees', function(req, res) {
+var triggerAlert = function(req, res, next) {
+	// update mysql db as of now
+	// mysql.update_company_status(req.session.user.companyId, 1);
+
+	req.session.user.companyStatus = 1;
+	return next();
+};
+
+var getEmployeesData = function(req, res) {
 	console.log('warden id: ' + req.query.coordinatorId);
 	var wardenId = req.query.coordinatorId;
 
@@ -119,10 +113,9 @@ app.get('/employees', function(req, res) {
 	}
 
 	mysql.get_employees_data(callback, wardenId);
-});
+};
 
-// get information for specific employee
-app.get('/employees/:id', function(req, res) {
+var getEmployeeData = function(req, res) {
 	console.log('current information for employee id: ' + req.params.id);
 	var employeeid = req.params.id;
 
@@ -136,25 +129,38 @@ app.get('/employees/:id', function(req, res) {
 	}
 
 	mysql.get_employee_data(callback, employeeid);
-});
+};
+
+var updateStatus = function(req, res, next) {
+	var newStatus = req.query.status;
+	if (newStatus !== req.session.user.status) {
+		mysql.update_user_status(req.session.user.id, newStatus);
+		req.session.user.status = newStatus;
+	}
+	return next();
+};
+
+// routes
+// user logging in from login page
+app.post('/login', authorizeLogin, renderPage);
+
+// navigate to alert page
+app.get('/alertPage', authorizeWarden, renderPage);
+
+// user triggering an alert
+app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
+
+// navigate to dashboard
+app.get('/dashboard', activeUser, renderPage);
+
+// get employee data from mysql database and todo-insert into redis cache
+app.get('/employees', getEmployeesData);
+
+// get information for specific employee
+app.get('/employees/:id', getEmployeeData);
 
 // update employee status
-app.get('/updateStatus', function(req, res) {
-	var newStatus = req.query.status;
-
-	if (req.session && req.session.user) {
-		// update user status in database if different from current session
-		if (newStatus !== req.session.user.status) {
-			mysql.update_user_status(req.session.user.id, newStatus);
-			req.session.user.status = newStatus;
-		}
-		var sessionUser = req.session.user;
-		res.json(sessionUser);
-	}
-	else {
-		res.send(null);
-	}
-});
+app.get('/updateStatus', activeUser, updateStatus, renderPage);
 
 // socket io
 var rooms = [];

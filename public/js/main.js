@@ -87,14 +87,11 @@ var Module = (function () {
 
     // get current user's coordinate information
     function getCoordinateInfo() {
-        if (Modernizr.sessionstorage && sessionStorage.getItem('mapCoords') !== null) {
-            return JSON.parse(sessionStorage['mapCoords']);
+        if (typeof(currentUser !== 'undefined') || currentUser !== null) {
+            return currentUser.mapCoordinates;
         }
         else {
-            if (typeof(currentUser === 'undefined') || currentUser === null) {
-                return null;
-            }
-            return currentUser.mapCoordinates;
+            return null;
         }
     };
 
@@ -103,7 +100,7 @@ var Module = (function () {
         if (userData === null || userData === '') {
             // user not found - redirect back to login page
             document.getElementById('email').value = '';
-            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
+            // $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
 
             // show error message
             var loginErrorMsg = 'Invalid Login Credentials: User not found';
@@ -113,25 +110,18 @@ var Module = (function () {
         else {
             currentUser = new CurrentUserModel(userData);
 
-            if (Modernizr.sessionstorage) {
-                sessionStorage.setItem('mapCoords', JSON.stringify(currentUser.mapCoordinates));
-                sessionStorage.setItem('wardenFlag', currentUser.wardenFlag);
-            }
-
             if (isCurrentUserWarden()) {
                 if (currentUser.companyStatus === 0) {
-                    // successful login for warden where the currently is no evacuation, direct to alert page
+                    // successful login for warden where the currently is no evacuation, navigate to alert page
                     $.mobile.changePage('#alertScreen');
                 }
                 else {
-                    // successful login for warden where evacuation is already in process, join socket room for the the company
-                    socket.emit('join', currentUser.id, currentUser.companyName, true);
+                    // successful login for warden where company evacuation is already in process, navigate to warden dashboard page
                     $.mobile.changePage('#userDashboard');
                 }
             }
             else {
-                // successful login for employee, join socket room for the company
-                socket.emit('join', currentUser.id, currentUser.companyName, false);
+                // successful login for employee, navigate to employee dashboard page
                 $.mobile.changePage('#userDashboard');
             }
         }
@@ -147,7 +137,7 @@ var Module = (function () {
         else {
             currentUser = new CurrentUserModel(userData);
             if (!callback) {
-                return
+                return;
             }
             else {
                 callback();
@@ -157,27 +147,18 @@ var Module = (function () {
 
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
-        if (typeof(currentUser) === 'undefined' || currentUser === null) {
-            return false;
-        }
-        else {
-            if (Modernizr.sessionstorage && sessionStorage.getItem('wardenFlag') !== null) {
-                currentUser.wardenFlag = sessionStorage.getItem('wardenFlag');
-            }
+        if (typeof(currentUser) !== 'undefined' || currentUser !== null) {
             if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
                 return true;
             }
-            return false;
         }
+        return false;
     };
 
     function triggerAlert() {
         // todo - send push notifications or messages to all employees
         // todo - initiate all employees as not checked in
-
-        // create socket room for company
-        socket.emit('join', currentUser.id, currentUser.companyName, true);
-
+        // navigate to user dashboard page
         $.mobile.changePage('#userDashboard');
     };
 
@@ -206,18 +187,22 @@ var Module = (function () {
             s = 2;
         }
         var mapCoordinates = getCoordinateInfo();
-        var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
-        for (i=1; i<mapCoordinates.length; i++) {
-            if (i % 2 != 0) {
-                mapImageURL += '&markers=color:green|';
+        if (typeof(mapCoordinates) !== 'undefined' && mapCoordinates !== null) {
+            if (mapCoordinates.length > 0) {
+                var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
+                for (i=1; i<mapCoordinates.length; i++) {
+                    if (i % 2 != 0) {
+                        mapImageURL += '&markers=color:green|';
+                    }
+                    else {
+                        mapImageURL += '&markers=color:blue|';
+                    }
+                    mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
+                }
+                mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
+                $('#static_map_img_warden').attr('src', mapImageURL);
             }
-            else {
-                mapImageURL += '&markers=color:blue|';
-            }
-            mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
         }
-        mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
-        $('#static_map_img_warden').attr('src', mapImageURL);
     };
 
     function getStatusInfo() {
@@ -267,6 +252,17 @@ var Module = (function () {
             socket.emit('broadcast', currentUser.name, message, roomName);
         }
     };
+
+    function joinCompanyRoom() {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            if (isCurrentUserWarden()) {
+                socket.emit('join', currentUser.id, currentUser.companyName, true);
+            }
+            else {
+                socket.emit('join', currentUser.id, currentUser.companyName, false);
+            }
+        }
+    };
   
     return {
         validateLoginCredentials: validateLoginCredentials,
@@ -278,7 +274,8 @@ var Module = (function () {
         getCoordinateInfo: getCoordinateInfo,
         broadcastMessage: broadcastMessage,
         actionRequireLogin: actionRequireLogin,
-        getPersonnelInfo: getPersonnelInfo
+        getPersonnelInfo: getPersonnelInfo,
+        joinCompanyRoom: joinCompanyRoom
     };
 
 })();
@@ -319,6 +316,9 @@ $(function(){
         console.log('user dashboard');
 
         function dashboardCallback() {
+            // create/join socket communication room for company
+            Module.joinCompanyRoom();
+
             // initialize map
             Module.setStaticMap();
 
