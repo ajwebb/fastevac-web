@@ -1,0 +1,6 @@
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28507,"time":"2015-05-13T22:32:14.079Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28507,"time":"2015-05-13T22:32:18.584Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/943967/applications/8468036","component":"new_relic_response"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28507,"time":"2015-05-13T22:32:18.585Z","msg":"Connected to collector-113.newrelic.com:443 with agent run ID 36369950633161189.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28512,"time":"2015-05-13T22:32:53.564Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28512,"time":"2015-05-13T22:32:55.369Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/943967/applications/8468036","component":"new_relic_response"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Adams-Mac-mini.local","pid":28512,"time":"2015-05-13T22:32:55.370Z","msg":"Connected to collector-113.newrelic.com:443 with agent run ID 36369950633162509.","component":"collector_api"}
