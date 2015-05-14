@@ -45,12 +45,12 @@ var authorizeLogin = function(req, res, next) {
 			// no user found
 			console.log('No user found');
 			res.send(null);
+			// res.status(404).json('Invalid login: User not found');
 		}
 		else {
 			// adding user to session
 			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
-			// res.json(user);
 			return next();
 		}
 	};

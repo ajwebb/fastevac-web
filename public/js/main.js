@@ -53,16 +53,21 @@ var Module = (function () {
         var needAssistanceEmployees = [];
         var notCheckedInEmployees = [];
         var checkedInEmployees = [];
+        var content;
 
         for (i=0; i<employees.length; i++) {
+            // content = '<a href="/employees/' + employees[i].id + '">' + employees[i].name + '</a>';
             switch (employees[i].status) {
                 case 1:
+                    // checkedInEmployees.push($('<li>', {html: content}));
                     checkedInEmployees.push($('<li>', {text: employees[i].name}));
                     break;
                 case 2:
+                    // needAssistanceEmployees.push($('<li>', {html: content}));
                     needAssistanceEmployees.push($('<li>', {text: employees[i].name}));
                     break;
                 default:
+                    // notCheckedInEmployees.push($('<li>', {html: content}));
                     notCheckedInEmployees.push($('<li>', {text: employees[i].name}));
                     break;
             }
@@ -98,11 +103,7 @@ var Module = (function () {
     // verify user credentials after submitting login form
     function validateLoginCredentials(userData) {
         if (userData === null || userData === '') {
-            // user not found - redirect back to login page
-            document.getElementById('email').value = '';
-            // $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
-
-            // show error message
+            // user not found - show error message
             var loginErrorMsg = 'Invalid Login Credentials: User not found';
             $('.login_error_message').text(loginErrorMsg);
             $('.login_error_message').show();
@@ -125,6 +126,7 @@ var Module = (function () {
                 $.mobile.changePage('#userDashboard');
             }
         }
+        $('form').trigger('reset');
     };
 
     // navigate to new page, login information is required
@@ -304,7 +306,7 @@ var Module = (function () {
 
 $(function(){
     // create event for submitting login form
-    $("form").submit(function (event) {
+    $('form').submit(function (event) {
         event.stopPropagation();
         event.preventDefault();
         var email = $('#email').val(); // email from login form
