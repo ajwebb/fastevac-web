@@ -63,10 +63,17 @@
         <!-- login page -->
         <div data-role="page" id="login_page">
             <!-- header -->
+            <!--
             <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back"
             name="mobileheader" id="login_screen_mobileheader" class="login_screen_mobileheader" data-theme="c">
                 <h1>&nbsp;</h1>
             </div>
+            -->
+            <!--
+            <div data-role="header" data-position="fixed" data-theme="e">
+                <h1>Login</h1>
+            </div>
+            -->
 
             <!-- login form -->
             <div data-role="content" class="login_container" id="login_container" class="ui-corner-all">
@@ -89,7 +96,7 @@
                         </div>
                     </div>
                     <div class="form-group" id="button_container">
-                        <button type="submit" class="login_button">Sign In</button>
+                        <button type="submit" class="login_button" data-theme="e">Sign In</button>
                     </div>
                     <div class="form-group">
                         <a href="http://fastevac.com" class="help_link">Help Center</a>
@@ -101,10 +108,18 @@
         <!-- alert screen page -->
         <div data-role="page" id="alertScreen" class="type-interior">
             <!-- header -->
+            <!--
             <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back"
             name="mobileheader" id="alertScreen_mobileheader" class="alertScreen_mobileheader" data-theme="c">
                 <h1>&nbsp;</h1>
                 <img class="fastevac_logo_header" src="img/logo_design_1_prototype.png" id="alertScreen_fastevac_logo" name="alertScreen_fastevac_logo" />
+            </div>
+            -->
+
+            <div data-role="header" data-position="fixed" data-theme="e">
+                <!--<a data-iconpos="notext" data-role="button" data-icon="home" title="Home">Home</a>-->
+                    <h1>Evacuation</h1>
+                <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu" class="ui-btn-right"></a>-->
             </div>
 
             <!-- alert button and popup container -->
@@ -123,6 +138,12 @@
                     </div>
                 </div>
             </div>
+
+            <!-- all clear button container -->
+            <div data-role="content" id="all_clear_mobilecontainer" class="all_clear_mobilecontainer">
+                <!-- all clear button -->
+                <a href="#" data-role="button" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_allClear ui-nodisc-icon" data-corners="true" data-icon="check" data-iconpos="top" data-theme="b">All Clear!</a>
+            </div>
         </div>
 
         <!-- warden dashboard map page -->
@@ -130,9 +151,16 @@
             <!-- main content for warden -->
             <div data-role="content" class="userDashboard_mobilecontainer">
                 <!-- header -->
+                <!--
                 <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back" class="userDashboard_mobileheader" data-theme="c">
                     <h1>&nbsp;</h1>
                     <img class="fastevac_logo_header" src="img/logo_design_1_prototype.png"/>
+                </div>
+                -->
+                <div data-role="header" data-position="fixed" data-theme="e">
+                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
+                        <h1>Dashboard</h1>
+                    <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu"></a>-->
                 </div>
                 <!-- warden navbar -->
                 <div data-role="footer" data-position="fixed" data-theme="a">
@@ -205,9 +233,15 @@
         <!-- Start of broadcast dialog popup page -->
         <div data-role="page" id="broadcast_popup">
             <!-- /header -->
+            <!--
             <div data-role="header" class="broadcast_dialog_header" >
                 <a role="button" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left">close</a>
                 <h1>Broadcast</h1>
+            </div>
+            -->
+            <div data-role="header" data-position="fixed" data-theme="e">
+                    <h1>Broadcast</h1>
+                <a data-iconpos="notext" data-role="button" data-icon="flat-menu" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left"></a>
             </div>
             <!-- /content -->
             <div role="main" class="ui-content">
@@ -218,7 +252,7 @@
                     <label for="radio-choice-h-2b" class="broadcast_radio_label">Evac Coordinators</label>
                 </fieldset>
                 <textarea name="textarea" id="textarea" class="broadcast_txtarea"></textarea>
-                <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Send</a>
+                <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-theme="e">Send</a>
             </div>
         </div><!-- /broadcast popup -->
 

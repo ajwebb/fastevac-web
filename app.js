@@ -92,9 +92,17 @@ var renderPage = function(req, res) {
 
 var triggerAlert = function(req, res, next) {
 	// update mysql db as of now
-	// mysql.update_company_status(req.session.user.companyId, 1);
+	mysql.update_company_status(req.session.user.companyId, 1);
 
 	req.session.user.companyStatus = 1;
+	return next();
+};
+
+var clearAlert = function(req, res, next) {
+	// update mysql db as of now
+	mysql.update_company_status(req.session.user.companyId, 0);
+
+	req.session.user.companyStatus = 0;
 	return next();
 };
 
@@ -150,6 +158,9 @@ app.get('/alertPage', authorizeWarden, renderPage);
 
 // user triggering an alert
 app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
+
+// user triggering an alert
+app.get('/clearAlert', authorizeWarden, clearAlert, renderPage);
 
 // navigate to dashboard
 app.get('/dashboard', activeUser, renderPage);

@@ -87,7 +87,7 @@ var Module = (function () {
 
     // get current user's coordinate information
     function getCoordinateInfo() {
-        if (typeof(currentUser !== 'undefined') || currentUser !== null) {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
             return currentUser.mapCoordinates;
         }
         else {
@@ -156,10 +156,17 @@ var Module = (function () {
     };
 
     function triggerAlert() {
-        // todo - send push notifications or messages to all employees
+        // todo - send push notifications/txt messages to all employees
         // todo - initiate all employees as not checked in
         // navigate to user dashboard page
         $.mobile.changePage('#userDashboard');
+    };
+
+    function clearAlert() {
+        // show correct button
+        configureAlertScreen();
+        var allClearMessage = 'All Clear!';
+        socket.emit('broadcast', currentUser.name, allClearMessage, currentUser.companyName);
     };
 
     function setStaticMap() {
@@ -263,6 +270,19 @@ var Module = (function () {
             }
         }
     };
+
+    function configureAlertScreen() {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            if (currentUser.companyStatus == 1) {
+                $('.alertScreen_mobilecontainer').hide();
+                $('.all_clear_mobilecontainer').show();
+            }
+            else {
+                $('.alertScreen_mobilecontainer').show();
+                $('.all_clear_mobilecontainer').hide();
+            }
+        }
+    }
   
     return {
         validateLoginCredentials: validateLoginCredentials,
@@ -275,7 +295,9 @@ var Module = (function () {
         broadcastMessage: broadcastMessage,
         actionRequireLogin: actionRequireLogin,
         getPersonnelInfo: getPersonnelInfo,
-        joinCompanyRoom: joinCompanyRoom
+        joinCompanyRoom: joinCompanyRoom,
+        configureAlertScreen: configureAlertScreen,
+        clearAlert: clearAlert
     };
 
 })();
@@ -309,6 +331,13 @@ $(function(){
                 Module.actionRequireLogin(Module.triggerAlert, userData);
             });
 	    });
+
+        $(document).on('click', '.alertScreen_mobilebutton_allClear', function(event) {
+            console.log('cleared alert status for company');
+            $.get('/clearalert', function(userData) {
+                Module.actionRequireLogin(Module.clearAlert, userData);
+            });
+        });
     });
 
     // navigating to main dashboard page, initialize events for using the navbar
@@ -331,6 +360,7 @@ $(function(){
             }
             else {
                 Module.getStatusInfo();
+                $('.dashboard_home_button').hide();
             }
         }
 
@@ -403,6 +433,13 @@ $(function(){
     $(document).on("pagecontainerbeforeshow", function () {
         var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
         var activePageId = activePage[0].id;
+        if (activePageId === 'alertScreen') {
+            // show alert or all clear button
+            Module.configureAlertScreen();
+        }
+        else if (activePageId === 'userDashboard') {
+            console.log('user dashboard beforeshow event');
+        }
     });
 
     // page container show events

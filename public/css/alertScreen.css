@@ -28,6 +28,26 @@
 	border: 1px solid transparent!important;
 	font-size: 18px;
 }
+/* all clear button container  */
+.all_clear_mobilecontainer {
+	padding: 20px;
+	background-color: transparent;
+	height: 120px;
+	margin: auto;
+  	position: absolute;
+  	top: 0; left: 0; bottom: 0; right: 0;
+  	display: none;
+}
+/* mobilebutton_all_clear */
+.alertScreen_mobilebutton_allClear {
+	background-color: #166549!important;
+	border: 1px solid transparent!important;
+	font-size: 18px;
+}
+.alertScreen_mobilebutton_allClear:hover {
+	background-color: #1f8f67!important;
+	border: 1px solid transparent!important;
+}
 /* alert popup banner */
 .alert_popup_header_container {
 	margin-top: -20px;
