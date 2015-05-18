@@ -24,14 +24,14 @@
 .ui-navbar .ui-btn-active {
     background: #2ad !important;
 }
-/* content pages for dashboard */
+/* content pages for dashboard 
 #warden_compass_content, #warden_personnel_content, #employee_status_content {
 	display: none;
-}
-/* navbars */
+}*/
+/* navbars 
 #warden_navbar, #employee_navbar {
 	display: none;
-}
+}*/
 .userDashboard_mobilecontainer {
 	padding: 0;
 }

@@ -16,74 +16,199 @@ var Module = (function () {
         getPersonnelInfo(); // refresh personnel list with updated statuses
     });
 
+
     var currentUser;
-    var employees = [];
+    var employeeCollection;
 
-    // user model
-    var CurrentUserModel = function(userData) {
-        this.id = userData.id;
-        this.name = userData.name;
-        this.wardenFlag = userData.coordinatorFlag;
-        this.companyId = userData.companyId;
-        this.companyName = userData.companyName;
-        this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
-        this.currentStatus = userData.status; // 0 = normal/not checked in, 1 = checked in, 2 = in need of assistance
-        this.wardenId = userData.wardenId;
-        this.mapCoordinates = userData.coordinates;
+
+
+    // User Model
+    var User = Backbone.Model.extend({
+        urlRoot: '/user',
+
+        defaults: {
+            id: 0,
+            name: 'Unknown User',
+            status: 0,
+            coordinatorFlag: 0,
+            companyId: 0,
+            companyName: 'Unknown Company',
+            companyStatus: 0,
+            phoneNo: 0,
+            coordinatorId: 0,
+            coordinates: null
+        },
+
+        updateStatus: function(newStatus) {
+            this.set({'status': newStatus});
+            this.save(); // need to update server with new status for current employee
+            socket.emit('update_status', this.get('id'), this.get('companyName'), newStatus);
+        }
+    });
+
+    // User View
+    var UserView = Backbone.View.extend({
+        events: {},
+
+        initialize: function() {},
+
+        render: function() {}
+    });
+
+    // Employee Model
+    var Employee = Backbone.Model.extend({
+        urlRoot: '/employee',
+
+        defaults: {
+            id: 0,
+            name: 'Unknown Employee',
+            status: 0,
+            phoneNo: 5555555555
+        }
+    });
+
+    // Employee View
+    var EmployeeView = Backbone.View.extend({
+        tagName: 'li',
+
+        template: _.template('<a href="/#employees/<%= id %>"><%= name %></a>'),
+
+        initialize: function() {},
+
+        render: function() {
+            this.$el.html(this.template(this.model.toJSON()));
+            return this;
+        }
+    });
+
+    // Collection of Employees
+    var EmployeeCollection = Backbone.Collection.extend({
+        model: Employee,
+
+        url: '/employees',
+
+        needAssistanceList: function() {
+            return this.where({status: 2});
+        },
+
+        checkedInList: function() {
+            return this.where({status: 1});
+        },
+
+        notCheckedInList: function() {
+            return this.where({status: 0});
+        },
+
+        needAssistanceCount: function() {
+            return this.where({status: 2}).length;
+        },
+
+        checkedInCount: function() {
+            return this.where({status: 1}).length;
+        },
+
+        notCheckedInCount: function() {
+            return this.where({status: 0}).length;
+        }
+    });
+
+    // Employee Collection View
+    var EmployeeListView = Backbone.View.extend({
+        tagName: 'ul',
+
+        initialize: function() {
+            this.collection.on('reset', this.addAll, this);
+        },
+
+        addOne: function(emp) {
+            console.log('Employee: ' + emp.get('name'));
+            var empView = new EmployeeView({model: emp});
+            this.$el.append(empView.render().el);
+        },
+
+        addAll: function() {
+            this.collection.forEach(this.addOne, this);
+        },
+
+        render: function() {
+            this.addAll();
+            return this;
+        }
+    });
+
+    var userLogon = function(userData) {
+        if (userData === null || userData === '') {
+            // user not found - show error message
+            var loginErrorMsg = 'Invalid Login Credentials: User not found';
+            $('.login_error_message').text(loginErrorMsg);
+            $('.login_error_message').show();
+        }
+        else {
+            $('.login_error_message').hide();
+
+            // create new instance of current user model with logged in user data from db
+            currentUser = new User(userData);
+            // var currentUserView = new UserView({model: currentUser});
+
+            if (currentUser.get('coordinatorFlag') == 1) {
+                $.mobile.changePage('#alertScreen');
+            }
+            else {
+                $.mobile.changePage('#wardenMap');
+            }
+        }
+        $('form').trigger('reset');
     };
 
-    // employee model
-    var EmployeeModel = function(employeeData) {
-        this.id = employeeData.id;
-        this.name = employeeData.name;
-        this.status = employeeData.status;
-        this.phoneNo = employeeData.phoneNo;
-    };
 
     // get employee information from the database and load the employees model
     function getPersonnelInfo() {
-        $.get('/employees', {coordinatorId: currentUser.id}, function(personnelData) {
-            employees = personnelData;
-            updatePersonnelInfo();
-        });
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            if (currentUser.get('coordinatorFlag') == 1) {
+                employeeCollection = new EmployeeCollection();
+                employeeCollection.fetch({
+                    data: {
+                        coordinatorId: currentUser.get('id')
+                    },
+                    success: updatePersonnelInfo,
+                    error: function(e) {
+                        console.log('Error fetching employee data: ' + e);
+                    },
+                    complete: function(e) {
+                        console.log('Fetching employee data complete');
+                    }
+                });
+            }
+        }
     };
 
     // update lists of employees with their current status, for evac coordinator only
     function updatePersonnelInfo() {
-        var needAssistanceEmployees = [];
-        var notCheckedInEmployees = [];
-        var checkedInEmployees = [];
-        var content;
-
-        for (i=0; i<employees.length; i++) {
-            // content = '<a href="/employees/' + employees[i].id + '">' + employees[i].name + '</a>';
-            switch (employees[i].status) {
-                case 1:
-                    // checkedInEmployees.push($('<li>', {html: content}));
-                    checkedInEmployees.push($('<li>', {text: employees[i].name}));
-                    break;
-                case 2:
-                    // needAssistanceEmployees.push($('<li>', {html: content}));
-                    needAssistanceEmployees.push($('<li>', {text: employees[i].name}));
-                    break;
-                default:
-                    // notCheckedInEmployees.push($('<li>', {html: content}));
-                    notCheckedInEmployees.push($('<li>', {text: employees[i].name}));
-                    break;
-            }
-        }
-
-        $('#need_assistance_counter').text(needAssistanceEmployees.length);
-        $('#not_checked_in_counter').text(notCheckedInEmployees.length);
-        $('#checked_in_counter').text(checkedInEmployees.length);
+        $('#need_assistance_counter').text(employeeCollection.needAssistanceCount());
+        $('#not_checked_in_counter').text(employeeCollection.notCheckedInCount());
+        $('#checked_in_counter').text(employeeCollection.checkedInCount());
 
         $('#need_assistance_employees').empty();
         $('#not_checked_in_employees').empty();
         $('#checked_in_employees').empty();
 
-        $('#need_assistance_employees').append(needAssistanceEmployees);
-        $('#not_checked_in_employees').append(notCheckedInEmployees);
-        $('#checked_in_employees').append(checkedInEmployees);
+        employeeCollection.needAssistanceList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#need_assistance_employees').append(empView.render().el);
+        });
+
+        employeeCollection.notCheckedInList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#not_checked_in_employees').append(empView.render().el);
+        });
+
+        employeeCollection.checkedInList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#checked_in_employees').append(empView.render().el);
+        });
+
+        // var empListView = new EmployeeListView({collection: employeeCollection});
+        // $('#warden_personnel_content').html(empListView.render().el);
 
         $('#need_assistance_employees').listview().listview('refresh');
         $('#not_checked_in_employees').listview().listview('refresh');
@@ -93,40 +218,30 @@ var Module = (function () {
     // get current user's coordinate information
     function getCoordinateInfo() {
         if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            return currentUser.mapCoordinates;
+            return currentUser.get('coordinates');
         }
         else {
             return null;
         }
     };
 
-    // verify user credentials after submitting login form
-    function validateLoginCredentials(userData) {
-        if (userData === null || userData === '') {
-            // user not found - show error message
-            var loginErrorMsg = 'Invalid Login Credentials: User not found';
-            $('.login_error_message').text(loginErrorMsg);
-            $('.login_error_message').show();
+    // validate fields on the login form
+    function validateLoginForm() {
+        var email = $('#email').val(); // email from login form
+        if (email === '') {
+            // check if empty string
+            // var loginErrorMsg = 'Please enter a valid email address';
+            // $('.login_error_message').text(loginErrorMsg);
+            // $('.login_error_message').show();
+
+            // setting email for dev purposes only
+            email = 'awebbx@gmail.com';
+            $.post('/login', {emailAddress: email}, userLogon);
         }
         else {
-            currentUser = new CurrentUserModel(userData);
-
-            if (isCurrentUserWarden()) {
-                if (currentUser.companyStatus === 0) {
-                    // successful login for warden where the currently is no evacuation, navigate to alert page
-                    $.mobile.changePage('#alertScreen');
-                }
-                else {
-                    // successful login for warden where company evacuation is already in process, navigate to warden dashboard page
-                    $.mobile.changePage('#userDashboard');
-                }
-            }
-            else {
-                // successful login for employee, navigate to employee dashboard page
-                $.mobile.changePage('#userDashboard');
-            }
+            // $.post('/login', {emailAddress: email}, validateLoginCredentials);
+            $.post('/login', {emailAddress: email}, userLogon);
         }
-        $('form').trigger('reset');
     };
 
     // navigate to new page, login information is required
@@ -147,21 +262,11 @@ var Module = (function () {
         }
     }
 
-    // determine if user is evac coordinator
-    function isCurrentUserWarden() {
-        if (typeof(currentUser) !== 'undefined' || currentUser !== null) {
-            if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
-                return true;
-            }
-        }
-        return false;
-    };
-
     function triggerAlert() {
         // todo - send push notifications/txt messages to all employees
         // todo - initiate all employees as not checked in
         // navigate to user dashboard page
-        $.mobile.changePage('#userDashboard');
+        $.mobile.changePage('#wardenMap');
     };
 
     function clearAlert() {
@@ -244,14 +349,6 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
-    function updateStatus() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-            socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
-            getStatusInfo();
-        }
-    };
-
     function broadcastMessage(message, wardensOnlyFlag) {
         if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
             var roomName = currentUser.companyName
@@ -287,11 +384,9 @@ var Module = (function () {
     }
   
     return {
-        validateLoginCredentials: validateLoginCredentials,
+        validateLoginForm: validateLoginForm,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
-        isCurrentUserWarden: isCurrentUserWarden,
-        updateStatus: updateStatus,
         getStatusInfo: getStatusInfo,
         getCoordinateInfo: getCoordinateInfo,
         broadcastMessage: broadcastMessage,
@@ -309,29 +404,26 @@ $(function(){
     $('form').submit(function (event) {
         event.stopPropagation();
         event.preventDefault();
-        var email = $('#email').val(); // email from login form
-        if (email === '') {
-            // setting email for dev purposes only
-            email = 'awebbx@gmail.com';
-        }
-        $.post('/login', {emailAddress: email}, Module.validateLoginCredentials);
+
+        Module.validateLoginForm();
     });
 
     // navigating to alert page for the first time, create events for initiating evacuation
     $(document).on('pagecreate', '#alertScreen', function() {
         console.log('alert page');
 
-        $.get('/alertpage', function(userData) {
-            Module.actionRequireLogin(null, userData);
-        });
+        // $.get('/alertpage', function(userData) {
+        //     Module.actionRequireLogin(null, userData);
+        // });
         
     	$(document).on('click', '.confirm_alert', function(event) {
     		console.log('confirmed alert');
 	        event.stopPropagation();
 	        event.preventDefault();
-            $.get('/triggeralert', function(userData) {
-                Module.actionRequireLogin(Module.triggerAlert, userData);
-            });
+            // $.get('/triggeralert', function(userData) {
+            //     Module.actionRequireLogin(Module.triggerAlert, userData);
+            // });
+            Module.triggerAlert();
 	    });
 
         $(document).on('click', '.alertScreen_mobilebutton_allClear', function(event) {
@@ -342,56 +434,34 @@ $(function(){
         });
     });
 
-    // navigating to main dashboard page, initialize events for using the navbar
-    $(document).on('pagecreate', '#userDashboard', function() {
-        console.log('user dashboard');
+    $(document).on('pagecreate', '#wardenMap', function() {
+        console.log('warden map page');
 
-        function dashboardCallback() {
-            // create/join socket communication room for company
-            Module.joinCompanyRoom();
-
-            // initialize map
-            Module.setStaticMap();
-
-            // initialize compass
-            Compass.initCompass();
-
-            // get personnel data if warden
-            if (Module.isCurrentUserWarden()) {
-                Module.getPersonnelInfo();
-            }
-            else {
-                Module.getStatusInfo();
-                $('.dashboard_home_button').hide();
-            }
-        }
-
-        $.get('/dashboard', function(userData) {
-            //initialize user
-            Module.actionRequireLogin(dashboardCallback, userData);
-
-            // show the correct navbar
-            if (userData.coordinatorFlag == 1) {
-                $('#employee_navbar').hide();
-                $('#warden_navbar').show();
-            }
-            else {
-                $('#warden_navbar').hide();
-                $('#employee_navbar').show();
-            }
-        });
+        // initialize map
+        Module.setStaticMap();
 
         // need to resize map on device orientation change
         $(window).on("throttledresize", Module.setStaticMap);
+    });
 
-        // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
-        $(document).on('click', '.ui-navbar a', function(event) {
-            console.log('navbar menu item clicked');
-            $('.content_div').hide();
-            $('#' + $(this).attr('data-href') + '_content').show();
-        });
+    $(document).on('pagecreate', '#wardenCompass', function() {
+        console.log('warden compass page');
 
-        // sends broadcast, show map tab, todo - should show last visited tab
+        // initialize compass
+        Compass.initCompass();
+    });
+
+    $(document).on('pagecreate', '#employees', function() {
+        console.log('warden personnel page');
+
+        // initialize personnel lists
+        Module.getPersonnelInfo();
+    });
+
+    $(document).on('pagecreate', '#broadcast_popup', function() {
+        console.log('broadcast dialog popup');
+
+        // send broadcast event
         $(document).on('click', '.send_message', function(event) {
             var message = document.getElementById('textarea').value;
             if (typeof(message) !== 'undefined' && message !== 'null' && message !== '') {
@@ -404,15 +474,18 @@ $(function(){
                 console.log('broadcast sent');
             }
             document.getElementById('textarea').value = '';
-            $('#' + 'warden_map_content').show();
         });
 
-        // cancels broadcast, show map tab, todo - should show last visited tab
+        // cancel broadcast event
         $(document).on('click', '.cancel_broadcast', function(event) {
             console.log('broadcast canceled');
             document.getElementById('textarea').value = '';
-            $('#' + 'warden_map_content').show();
         });
+    });
+
+    // navigating to main dashboard page, initialize events for using the navbar
+    $(document).on('pagecreate', '#employeestatus', function() {
+        console.log('employee status page');
 
         // user checks in
         $(document).on('click', '.check_in_button', function(event) {
@@ -438,9 +511,6 @@ $(function(){
         if (activePageId === 'alertScreen') {
             // show alert or all clear button
             Module.configureAlertScreen();
-        }
-        else if (activePageId === 'userDashboard') {
-            console.log('user dashboard beforeshow event');
         }
     });
 

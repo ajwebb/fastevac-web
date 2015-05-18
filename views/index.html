@@ -52,34 +52,24 @@
         <link rel="stylesheet" href="css/statusScreen.css">
 
         <script src="js/vendor/modernizr-2.7.1.min.js"></script>
+        <!--<script src="js/vendor/handlebars-v3.0.3.js"></script>-->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+        <script src="js/vendor/underscore-min.js"></script>
+        <script src="js/vendor/backbone-min.js"></script>
+        <!--<script src="js/vendor/backbone.marionette.min.js"></script>-->
         <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry" type="text/javascript"></script>
-
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
 
         <!-- login page -->
         <div data-role="page" id="login_page">
-            <!-- header -->
-            <!--
-            <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back"
-            name="mobileheader" id="login_screen_mobileheader" class="login_screen_mobileheader" data-theme="c">
-                <h1>&nbsp;</h1>
-            </div>
-            -->
-            <!--
-            <div data-role="header" data-position="fixed" data-theme="e">
-                <h1>Login</h1>
-            </div>
-            -->
-
             <!-- login form -->
             <div data-role="content" class="login_container" id="login_container" class="ui-corner-all">
                 <img class="login_screen_logo_image" src="img/logo_design_1_prototype.png" id="login_screen_logo_image" name="login_screen_logo_image" />
-                <p class="login_error_message"></p>
                 <form class="login_form">
+                    <p class="login_error_message"></p>
                     <div class="form-group">
                         <input type="text" class="form-input" placeholder="Email" name="login_email" id="email">
                     </div>
@@ -108,18 +98,9 @@
         <!-- alert screen page -->
         <div data-role="page" id="alertScreen" class="type-interior">
             <!-- header -->
-            <!--
-            <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back"
-            name="mobileheader" id="alertScreen_mobileheader" class="alertScreen_mobileheader" data-theme="c">
-                <h1>&nbsp;</h1>
-                <img class="fastevac_logo_header" src="img/logo_design_1_prototype.png" id="alertScreen_fastevac_logo" name="alertScreen_fastevac_logo" />
-            </div>
-            -->
-
             <div data-role="header" data-position="fixed" data-theme="e">
-                <!--<a data-iconpos="notext" data-role="button" data-icon="home" title="Home">Home</a>-->
-                    <h1>Evacuation</h1>
                 <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu" class="ui-btn-right"></a>-->
+                <h1>Evacuation</h1>
             </div>
 
             <!-- alert button and popup container -->
@@ -146,53 +127,105 @@
             </div>
         </div>
 
-        <!-- warden dashboard map page -->
-        <div data-role="page" id="userDashboard" class="type-interior">
-            <!-- main content for warden -->
+        <!-- map page -->
+        <div data-role="page" id="wardenMap" class="type-interior">
+            <!-- main content -->
             <div data-role="content" class="userDashboard_mobilecontainer">
                 <!-- header -->
-                <!--
-                <div data-role="header" data-position="fixed" data-add-back-btn="false" data-back-btn-text="Back" class="userDashboard_mobileheader" data-theme="c">
-                    <h1>&nbsp;</h1>
-                    <img class="fastevac_logo_header" src="img/logo_design_1_prototype.png"/>
-                </div>
-                -->
-                <div data-role="header" data-position="fixed" data-theme="e">
+                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
                     <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
-                        <h1>Dashboard</h1>
-                    <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu"></a>-->
+                    <h1>Dashboard</h1>
                 </div>
                 <!-- warden navbar -->
-                <div data-role="footer" data-position="fixed" data-theme="a">
+                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
                     <div data-role="navbar" id="warden_navbar">
                         <ul>
-                            <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
-                            <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
-                            <li><a href="#" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
+                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
+                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
                             <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
                          </ul>
                     </div>
-                    <div data-role="navbar" id="employee_navbar">
+                </div>
+                <!-- employee navbar 
+                <div data-role="footer" data-id="employee_footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
                         <ul>
-                            <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
-                            <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
-                            <li><a href="#" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="comment">Status</a></li>
+                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
+                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#status" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="user">Status</a></li>
                          </ul>
                     </div>
-                </div>
+                </div>-->
 
-                <!-- content tabs for user dashboard -->
-                <!-- warden map tab -->
+                <!-- map tab -->
                 <div id="warden_map_content" class="content_div">
                   <div id="map_canvas">
                      <img id="static_map_img_warden"/>
                   </div>
                 </div>
 
-                <!-- warden compass tab -->
+            </div>
+        </div>
+
+        <!-- compass page -->
+        <div data-role="page" id="wardenCompass" class="type-interior">
+            <!-- main content -->
+            <div data-role="content" class="userDashboard_mobilecontainer">
+                <!-- header -->
+                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
+                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
+                    <h1>Dashboard</h1>
+                </div>
+                <!-- warden navbar -->
+                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
+                        <ul>
+                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
+                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="navigation">Compass</a></li>
+                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
+                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                         </ul>
+                    </div>
+                </div>
+                <!-- employee navbar 
+                <div data-role="footer" data-id="employee_footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
+                        <ul>
+                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
+                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="navigation">Compass</a></li>
+                            <li><a href="#status" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="user">Status</a></li>
+                         </ul>
+                    </div>
+                </div>-->
+
+                <!-- compass tab -->
                 <div id="warden_compass_content" class="content_div">
                     <div class="pointer"></div>
                     <div class="distance_container"><p class="compass_distance"></p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- warden dashboard personnel page -->
+        <div data-role="page" id="employees" class="type-interior">
+            <!-- main content for warden -->
+            <div data-role="content" class="userDashboard_mobilecontainer">
+                <!-- header -->
+                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
+                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
+                    <h1>Dashboard</h1>
+                </div>
+                <!-- warden navbar -->
+                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
+                        <ul>
+                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
+                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="user">Personnel</a></li>
+                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                         </ul>
+                    </div>
                 </div>
 
                 <!-- warden personnel tab -->
@@ -218,27 +251,12 @@
                     </li>
                   </ul>
                 </div>
-
-                <!-- employee status -->
-                <div id="employee_status_content" class="content_div">
-                    <p class="evacuation_status_label"><strong>Evacuation Status: </strong><span class="evacuation_status_txt"></span></p>
-                    <p class="current_status_label"><strong>Current User Status: </strong><span class="current_status_txt"></span></p>
-                    <a href="#" data-role="button" class="check_in_button">Check In</a>
-                    <a href="#" data-role="button" class="need_assistance_button" data-theme="d">Help</a>
-                </div>
-
             </div>
         </div>
 
         <!-- Start of broadcast dialog popup page -->
         <div data-role="page" id="broadcast_popup">
             <!-- /header -->
-            <!--
-            <div data-role="header" class="broadcast_dialog_header" >
-                <a role="button" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left">close</a>
-                <h1>Broadcast</h1>
-            </div>
-            -->
             <div data-role="header" data-position="fixed" data-theme="e">
                     <h1>Broadcast</h1>
                 <a data-iconpos="notext" data-role="button" data-icon="flat-menu" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left"></a>

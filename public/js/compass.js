@@ -99,7 +99,7 @@
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
                     $.get('/updateStatus', {status: 1}, function(userData) {
-                        Module.actionRequireLogin(Module.updateStatus, userData);
+                        // Module.actionRequireLogin(Module.updateStatus, userData);
                         console.log('User has reached the evacuation zone: ' + userData.name);
 
                         // notify user they have arrived at the evac point

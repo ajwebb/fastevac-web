@@ -169,7 +169,7 @@ app.get('/dashboard', activeUser, renderPage);
 app.get('/employees', getEmployeesData);
 
 // get information for specific employee
-app.get('/employees/:id', getEmployeeData);
+app.get('/employee/:id', getEmployeeData);
 
 // update employee status
 app.get('/updateStatus', activeUser, updateStatus, renderPage);
