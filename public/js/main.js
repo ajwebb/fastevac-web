@@ -28,11 +28,26 @@ var Module = (function () {
         this.companyName = userData.companyName;
         this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
         this.currentStatus = userData.status; // 0 = normal/not checked in, 1 = checked in, 2 = in need of assistance
-        this.wardenId = userData.wardenId;
+        this.wardenId = userData.coordinatorId;
         this.mapCoordinates = userData.coordinates;
     };
 
-    // employee model
+    function updateStatus(newStatus) {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
+            // check to make sure there is an evacuation and the new status is different from the old status before updating db
+            if (currentUser.companyStatus !== 0 && currentUser.currentStatus !== newStatus) {
+                // ajax request to update the database with the new status
+                $.get('/updateStatus', {status: newStatus}, function(userData) {
+                    currentUser.currentStatus = newStatus;
+                    getStatusInfo();
+                    // socket event to update evac coordinator of status update
+                    socket.emit('update_status', currentUser.id, currentUser.companyName, newStatus);
+                });
+            }
+        }
+    };
+
+    // Employee Model
     var EmployeeModel = function(employeeData) {
         this.id = employeeData.id;
         this.name = employeeData.name;
@@ -40,7 +55,7 @@ var Module = (function () {
         this.phoneNo = employeeData.phoneNo;
     };
 
-    // get employee information from the database and load the employees model
+    // get employee information from the database and load the employees list
     function getPersonnelInfo() {
         $.get('/employees', {coordinatorId: currentUser.id}, function(personnelData) {
             employees = personnelData;
@@ -56,7 +71,7 @@ var Module = (function () {
         var content;
 
         for (i=0; i<employees.length; i++) {
-            // content = '<a href="/employees/' + employees[i].id + '">' + employees[i].name + '</a>';
+            // content = '<a href="/#employees/' + employees[i].id + '">' + employees[i].name + '</a>';
             switch (employees[i].status) {
                 case 1:
                     // checkedInEmployees.push($('<li>', {html: content}));
@@ -149,7 +164,7 @@ var Module = (function () {
 
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
-        if (typeof(currentUser) !== 'undefined' || currentUser !== null) {
+        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
             if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
                 return true;
             }
@@ -196,21 +211,19 @@ var Module = (function () {
             s = 2;
         }
         var mapCoordinates = getCoordinateInfo();
-        if (typeof(mapCoordinates) !== 'undefined' && mapCoordinates !== null) {
-            if (mapCoordinates.length > 0) {
-                var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
-                for (i=1; i<mapCoordinates.length; i++) {
-                    if (i % 2 != 0) {
-                        mapImageURL += '&markers=color:green|';
-                    }
-                    else {
-                        mapImageURL += '&markers=color:blue|';
-                    }
-                    mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
+        if (typeof(mapCoordinates) !== 'undefined' && mapCoordinates !== null && mapCoordinates.length > 0) {
+            var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
+            for (i=1; i<mapCoordinates.length; i++) {
+                if (i % 2 != 0) {
+                    mapImageURL += '&markers=color:green|';
                 }
-                mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
-                $('#static_map_img_warden').attr('src', mapImageURL);
+                else {
+                    mapImageURL += '&markers=color:blue|';
+                }
+                mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
             }
+            mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
+            $('#static_map_img_warden').attr('src', mapImageURL);
         }
     };
 
@@ -242,14 +255,6 @@ var Module = (function () {
 
         $('.evacuation_status_txt').text(companyStatusTxt);
         $('.current_status_txt').text(userStatusTxt);
-    };
-
-    function updateStatus() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-            socket.emit('update_status', currentUser.id, currentUser.companyName, currentUser.currentStatus);
-            getStatusInfo();
-        }
     };
 
     function broadcastMessage(message, wardensOnlyFlag) {
@@ -417,17 +422,13 @@ $(function(){
         // user checks in
         $(document).on('click', '.check_in_button', function(event) {
             console.log('user checking in');
-            $.get('/updateStatus', {status: 1}, function(userData) {
-                Module.actionRequireLogin(Module.updateStatus, userData);
-            });
+            Module.updateStatus(1);
         });
 
         // user needs assistance
         $(document).on('click', '.need_assistance_button', function(event) {
             console.log('user needs assistance');
-            $.get('/updateStatus', {status: 2}, function(userData) {
-                Module.actionRequireLogin(Module.updateStatus, userData);
-            });
+            Module.updateStatus(2);
         });
     });
 

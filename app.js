@@ -43,6 +43,7 @@ var authorizeLogin = function(req, res, next) {
 	var callback = function(err, user) {
 		if (!user) {
 			// no user found
+			req.session.destroy();
 			console.log('No user found');
 			res.send(null);
 			// res.status(404).json('Invalid login: User not found');
@@ -65,7 +66,9 @@ var activeUser = function(req, res, next) {
 		return next();
 	}
 	else {
+		req.session.destroy();
 		res.send(null);
+		// res.redirect('/');
 	}
 };
 
@@ -142,10 +145,9 @@ var getEmployeeData = function(req, res) {
 
 var updateStatus = function(req, res, next) {
 	var newStatus = req.query.status;
-	if (newStatus !== req.session.user.status) {
-		mysql.update_user_status(req.session.user.id, newStatus);
-		req.session.user.status = newStatus;
-	}
+	console.log('current company status: ' + req.session.user.companyStatus);
+	mysql.update_user_status(req.session.user.id, newStatus);
+	req.session.user.status = newStatus;
 	return next();
 };
 
