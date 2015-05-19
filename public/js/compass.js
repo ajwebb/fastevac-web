@@ -98,20 +98,21 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
-                    $.get('/updateStatus', {status: 1}, function(userData) {
-                        Module.actionRequireLogin(Module.updateStatus, userData);
-                        console.log('User has reached the evacuation zone: ' + userData.name);
+                    Module.updateStatus(1);
 
-                        // notify user they have arrived at the evac point
-                        var arrEvacPtTxt = 'Arrived';
-                        $('.compass_distance').text(arrEvacPtTxt);
+                    console.log('User has reached the evacuation zone');
 
-                        // clear watch
-                        navigator.geolocation.clearWatch(watchId);
-                    });
-                };
-                distance = Math.round(distance);
-                txtDistance = distance + ' ft';
+                    // indicate user has arrived at the evac point
+                    var arrEvacPtTxt = 'Arrived';
+                    $('.compass_distance').text(arrEvacPtTxt);
+
+                    // clear watch
+                    navigator.geolocation.clearWatch(watchId);
+                }
+                else {
+                    distance = Math.round(distance);
+                    txtDistance = distance + ' ft';
+                }
             }
         }
         else {

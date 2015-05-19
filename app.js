@@ -49,6 +49,12 @@ var authorizeLogin = function(req, res, next) {
 			// res.status(404).json('Invalid login: User not found');
 		}
 		else {
+			if (user.coordinatorFlag == 1) {
+				user.role = 'warden';
+			}
+			else {
+				user.role = 'employee';
+			}
 			// adding user to session
 			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
@@ -60,32 +66,31 @@ var authorizeLogin = function(req, res, next) {
 	mysql.find_user(callback, req.body.emailAddress);
 };
 
-var activeUser = function(req, res, next) {
+var requireWardenRole = function(req, res, next) {
 	if (req.session && req.session.user) {
-		console.log('logged in user: ' + req.session.user.name);
-		return next();
-	}
-	else {
-		req.session.destroy();
-		res.send(null);
-		// res.redirect('/');
-	}
-};
-
-var authorizeWarden = function(req, res, next) {
-	if (req.session && req.session.user) {
-		console.log('logged in user: ' + req.session.user.name);
-
-		if (req.session.user.coordinatorFlag != 1) {
-			console.log('not a coordinator');
-			res.send(null);
-		}
-		else {
+		if (req.session.user.role === 'warden') {
 			return next();
 		}
+		else {
+			res.sendStatus(403);
+		}
 	}
 	else {
-		res.send(null);
+		res.sendStatus(403);
+	}
+}
+
+var requireEmployeeRole = function(req, res, next) {
+	if (req.session && req.session.user) {
+		if (req.session.user.role === 'warden' || req.session.user.role === 'employee') {
+			return next();
+		}
+		else {
+			res.sendStatus(403);
+		}
+	}
+	else {
+		res.sendStatus(403);
 	}
 }
 
@@ -104,6 +109,9 @@ var triggerAlert = function(req, res, next) {
 var clearAlert = function(req, res, next) {
 	// update mysql db as of now
 	mysql.update_company_status(req.session.user.companyId, 0);
+
+	// update all employees status to be not checked in
+	mysql.update_all_employees_status(req.session.user.companyId, 0);
 
 	req.session.user.companyStatus = 0;
 	return next();
@@ -145,7 +153,6 @@ var getEmployeeData = function(req, res) {
 
 var updateStatus = function(req, res, next) {
 	var newStatus = req.query.status;
-	console.log('current company status: ' + req.session.user.companyStatus);
 	mysql.update_user_status(req.session.user.id, newStatus);
 	req.session.user.status = newStatus;
 	return next();
@@ -156,25 +163,25 @@ var updateStatus = function(req, res, next) {
 app.post('/login', authorizeLogin, renderPage);
 
 // navigate to alert page
-app.get('/alertPage', authorizeWarden, renderPage);
+app.get('/alertPage', requireWardenRole, renderPage);
 
 // user triggering an alert
-app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
+app.get('/triggerAlert', requireWardenRole, triggerAlert, renderPage);
 
 // user triggering an alert
-app.get('/clearAlert', authorizeWarden, clearAlert, renderPage);
-
-// navigate to dashboard
-app.get('/dashboard', activeUser, renderPage);
+app.get('/clearAlert', requireWardenRole, clearAlert, renderPage);
 
 // get employee data from mysql database and todo-insert into redis cache
-app.get('/employees', getEmployeesData);
+app.get('/employees', requireWardenRole, getEmployeesData);
 
 // get information for specific employee
-app.get('/employees/:id', getEmployeeData);
+app.get('/employees/:id', requireWardenRole, getEmployeeData);
+
+// navigate to dashboard
+app.get('/dashboard', requireEmployeeRole, renderPage);
 
 // update employee status
-app.get('/updateStatus', activeUser, updateStatus, renderPage);
+app.get('/updateStatus', requireEmployeeRole, updateStatus, renderPage);
 
 // not found error
 app.get('*', function(req, res) {

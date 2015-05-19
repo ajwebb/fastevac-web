@@ -24,6 +24,7 @@ var Module = (function () {
         this.id = userData.id;
         this.name = userData.name;
         this.wardenFlag = userData.coordinatorFlag;
+        this.roleType = userData.role;
         this.companyId = userData.companyId;
         this.companyName = userData.companyName;
         this.companyStatus = userData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
@@ -165,7 +166,7 @@ var Module = (function () {
     // determine if user is evac coordinator
     function isCurrentUserWarden() {
         if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            if (currentUser.wardenFlag === 1 || currentUser.wardenFlag === '1') {
+            if (currentUser.roleType === 'warden') {
                 return true;
             }
         }
@@ -184,6 +185,7 @@ var Module = (function () {
         configureAlertScreen();
         var allClearMessage = 'All Clear!';
         socket.emit('broadcast', currentUser.name, allClearMessage, currentUser.companyName);
+        getPersonnelInfo();
     };
 
     function setStaticMap() {
@@ -327,7 +329,7 @@ $(function(){
         console.log('alert page');
 
         $.get('/alertpage', function(userData) {
-            Module.actionRequireLogin(null, userData);
+            Module.actionRequireLogin(Module.configureAlertScreen, userData);
         });
         
     	$(document).on('click', '.confirm_alert', function(event) {
@@ -340,7 +342,6 @@ $(function(){
 	    });
 
         $(document).on('click', '.alertScreen_mobilebutton_allClear', function(event) {
-            console.log('cleared alert status for company');
             $.get('/clearalert', function(userData) {
                 Module.actionRequireLogin(Module.clearAlert, userData);
             });
@@ -396,6 +397,13 @@ $(function(){
             $('#' + $(this).attr('data-href') + '_content').show();
         });
 
+        $(document).on('click', '.dashboard_home_button', function(event) {
+            console.log('dashboard home button clicked');
+            $('.content_div').hide();
+            $('#' + 'warden_map_content').show();
+            Module.configureAlertScreen();
+        })
+
         // sends broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.send_message', function(event) {
             var message = document.getElementById('textarea').value;
@@ -438,7 +446,7 @@ $(function(){
         var activePageId = activePage[0].id;
         if (activePageId === 'alertScreen') {
             // show alert or all clear button
-            Module.configureAlertScreen();
+            // Module.configureAlertScreen();
         }
         else if (activePageId === 'userDashboard') {
             console.log('user dashboard beforeshow event');
