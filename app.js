@@ -48,6 +48,12 @@ var authorizeLogin = function(req, res, next) {
 			// res.status(404).json('Invalid login: User not found');
 		}
 		else {
+			if (user.coordinatorFlag == 1) {
+				user.adminRole = 'warden';
+			}
+			else {
+				user.adminRole = 'employee';
+			}
 			// adding user to session
 			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
@@ -59,13 +65,13 @@ var authorizeLogin = function(req, res, next) {
 	mysql.find_user(callback, req.body.emailAddress);
 };
 
-var activeUser = function(req, res, next) {
+var activeUser = function(req, res) {
 	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
-		return next();
+		res.json(req.session.user);
 	}
 	else {
-		res.send(null);
+		res.json({error: 'no active user found in session'});
 	}
 };
 
@@ -152,6 +158,9 @@ var updateStatus = function(req, res, next) {
 // routes
 // user logging in from login page
 app.post('/login', authorizeLogin, renderPage);
+
+// check user session
+app.get('/auth', activeUser);
 
 // navigate to alert page
 app.get('/alertPage', authorizeWarden, renderPage);

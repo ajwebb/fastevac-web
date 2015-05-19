@@ -2,37 +2,18 @@
  * JS for app 
  */
 
-var Module = (function () {
-
-    var socket = io.connect();
-
-    // socket events
-    socket.on('message_received', function(message) {
-        console.log('socket broadcast event received');
-        alert(message);
-    });
-
-    socket.on('employee_status_update', function(employeeId, employeeStatus) {
-        getPersonnelInfo(); // refresh personnel list with updated statuses
-    });
-
-
-    var currentUser;
-    var employeeCollection;
-
-
-
-    // User Model
+ // User Model
     var User = Backbone.Model.extend({
         urlRoot: '/user',
 
         defaults: {
             id: 0,
-            name: 'Unknown User',
+            name: '',
             status: 0,
             coordinatorFlag: 0,
+            adminRole: '',
             companyId: 0,
-            companyName: 'Unknown Company',
+            companyName: '',
             companyStatus: 0,
             phoneNo: 0,
             coordinatorId: 0,
@@ -53,6 +34,90 @@ var Module = (function () {
         initialize: function() {},
 
         render: function() {}
+    });
+
+    // Session Model
+    var SessionModel = Backbone.Model.extend({
+        urlRoot: '/auth',
+
+        defaults: {
+            logged_in: false,
+            user_id: 0
+        },
+
+        initialize: function() {
+            console.log('initialize session model');
+            this.user = new User({});
+        },
+
+        updateSessionUser: function(userData) {
+            this.user.set(_.pick(userData, _.keys(this,user.defaults)));
+        },
+
+        checkAuth: function(callback, args) {
+            var self = this;
+            this.fetch({
+                success: function(req, res) {
+                    if (!res.error && res.user) {
+                        self.updateSessionUser(res.user);
+                        self.set({'logged_in': true});
+                        if (!callback) {
+                            return;
+                        }
+                        else {
+                            return callback();
+                        }
+                    }
+                    else {
+                        self.set({'logged_in': false});
+                        return;
+                    }
+                },
+                error: function(e) {
+                    console.log('error fetching session data: ' + e);
+                    self.set({'logged_in': false});
+                    return;
+                },
+                complete: function(e) {
+                    console.log('session fetch complete');
+                    return;
+                }
+            })
+        },
+
+        login: function() {
+
+        },
+
+        logout: function() {
+
+        }
+    });
+
+    // Login View
+    var LoginView = Backbone.View.extend({
+        events: {
+            'click .login_button': 'onLoginAttempt'
+        },
+
+        initizlize: function() {
+            console.log('login view initialize!');
+        },
+
+        onLoginAttempt: function(event) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (validateLoginForm) {
+                
+            }
+        },
+
+        render: function() {
+            console.log('weve reached the login view render function');
+            return this;
+        }
     });
 
     // Employee Model
@@ -135,6 +200,59 @@ var Module = (function () {
             return this;
         }
     });
+
+    // backbone router
+    var Router = Backbone.Router.extend({
+        initialize: function() {
+            console.log('router initialize!');
+        },
+
+        routes: {
+            '': 'index'
+        },
+
+        index: function() {
+            console.log('router index function');
+            var loginView = new LoginView({});
+            loginView.render();
+        }
+    });
+
+
+
+
+var Module = (function () {
+
+    var socket = io.connect();
+
+    // socket events
+    socket.on('message_received', function(message) {
+        console.log('socket broadcast event received');
+        alert(message);
+    });
+
+    socket.on('employee_status_update', function(employeeId, employeeStatus) {
+        getPersonnelInfo(); // refresh personnel list with updated statuses
+    });
+
+
+    var currentUser;
+    var employeeCollection;
+
+    var router = new Router();
+    var session = new SessionModel({});
+
+    // check if user session exists
+    // session.checkAuth(function() {
+    //     Backbone.history.start();
+    // });
+
+    
+
+
+    
+
+    
 
     var userLogon = function(userData) {
         if (userData === null || userData === '') {
@@ -225,8 +343,19 @@ var Module = (function () {
         }
     };
 
-    // validate fields on the login form
     function validateLoginForm() {
+        var email = $('#email').val();
+        if (email === '') {
+            // return false;
+            return true;
+        }
+        else {
+            return true;
+        }
+    }
+
+    // validate fields on the login form
+    function validateLoginForm2() {
         var email = $('#email').val(); // email from login form
         if (email === '') {
             // check if empty string
@@ -401,12 +530,12 @@ var Module = (function () {
 
 $(function(){
     // create event for submitting login form
-    $('form').submit(function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+    // $('form').submit(function (event) {
+    //     event.stopPropagation();
+    //     event.preventDefault();
 
-        Module.validateLoginForm();
-    });
+    //     Module.validateLoginForm();
+    // });
 
     // navigating to alert page for the first time, create events for initiating evacuation
     $(document).on('pagecreate', '#alertScreen', function() {
