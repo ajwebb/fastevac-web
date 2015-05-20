@@ -61,16 +61,9 @@
                     if (!res.error && res.user) {
                         self.updateSessionUser(res.user);
                         self.set({'logged_in': true});
-                        if (!callback) {
-                            return;
-                        }
-                        else {
-                            return callback();
-                        }
                     }
                     else {
                         self.set({'logged_in': false});
-                        return;
                     }
                 },
                 error: function(e) {
@@ -80,7 +73,12 @@
                 },
                 complete: function(e) {
                     console.log('session fetch complete');
-                    return;
+                    if (!callback) {
+                        return;
+                    }
+                    else {
+                        return callback();
+                    }
                 }
             })
         },
@@ -96,26 +94,37 @@
 
     // Login View
     var LoginView = Backbone.View.extend({
+        template: _.template($('#login_template').html()),
+
+        className: 'login_container',
+
+        attributes: function() {
+            return {
+                'data-role': 'page'
+            }
+        },
+
         events: {
             'click .login_button': 'onLoginAttempt'
         },
 
         initizlize: function() {
             console.log('login view initialize!');
+            // _.bindAll(this);
         },
 
         onLoginAttempt: function(event) {
             if (event) {
                 event.preventDefault();
             }
-
-            if (validateLoginForm) {
-                
+            if (Module.validateLoginForm()) {
+                console.log('successful login validation');
             }
         },
 
         render: function() {
             console.log('weve reached the login view render function');
+            this.$el.html(this.template);
             return this;
         }
     });
@@ -211,10 +220,30 @@
             '': 'index'
         },
 
+        show: function(view) {
+            this.currentView = view;
+
+            // $('#content').html(this.currentView.render().$el);
+
+            $('body').append((this.currentView.render().$el));
+            $.mobile.changePage(this.currentView.$el, {changeHash:false});
+
+            // $(page.el).attr('data-role', 'page');
+            // page.render();
+            // $('body').append($(page.el));
+            // var transition = $.mobile.defaultPageTransition;
+            // // We don't want to slide the first page
+            // if (this.firstPage) {
+            //     transition = 'none';
+            //     this.firstPage = false;
+            // }
+            // $.mobile.changePage($(page.el), {changeHash:false, transition: transition});
+        },
+
         index: function() {
+            // render login page
             console.log('router index function');
-            var loginView = new LoginView({});
-            loginView.render();
+            this.show(new LoginView({}));
         }
     });
 
@@ -242,10 +271,14 @@ var Module = (function () {
     var router = new Router();
     var session = new SessionModel({});
 
+    // Backbone.history.start();
+
     // check if user session exists
-    // session.checkAuth(function() {
-    //     Backbone.history.start();
-    // });
+    session.checkAuth(function() {
+        console.log('backbone history starting');
+        Backbone.history.start();
+    });
+
 
     
 
@@ -347,7 +380,7 @@ var Module = (function () {
         var email = $('#email').val();
         if (email === '') {
             // return false;
-            return true;
+            return true; //dev purposes
         }
         else {
             return true;
@@ -529,6 +562,14 @@ var Module = (function () {
 })();
 
 $(function(){
+
+    $(document).bind("mobileinit", function(){
+        $.mobile.ajaxEnabled = false;
+        $.mobile.hashListeningEnabled = false;
+        $.mobile.linkBindingEnabled = false;
+        $.mobile.pushStateEnabled = false;
+    });
+
     // create event for submitting login form
     // $('form').submit(function (event) {
     //     event.stopPropagation();

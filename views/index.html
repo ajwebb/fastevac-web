@@ -63,10 +63,15 @@
     </head>
     <body>
 
-        <!-- login page -->
-        <div data-role="page" id="login_page">
-            <!-- login form -->
-            <div data-role="content" class="login_container" id="login_container" class="ui-corner-all">
+        <div class="header"></div>
+
+        <div id="content" class="container"></div>
+
+        <div id="footer"></div>
+
+        <!-- login form -->
+        <script type="text/template" id="login_template">
+            
                 <img class="login_screen_logo_image" src="img/logo_design_1_prototype.png" id="login_screen_logo_image" name="login_screen_logo_image" />
                 <form class="login_form">
                     <p class="login_error_message"></p>
@@ -92,188 +97,13 @@
                         <a href="http://fastevac.com" class="help_link">Help Center</a>
                     </div>
                 </form>
-            </div>
-        </div>
+            
+        </script>
 
-        <!-- alert screen page -->
-        <div data-role="page" id="alertScreen" class="type-interior">
-            <!-- header -->
-            <div data-role="header" data-position="fixed" data-theme="e">
-                <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu" class="ui-btn-right"></a>-->
-                <h1>Evacuation</h1>
-            </div>
-
-            <!-- alert button and popup container -->
-            <div data-role="content" id="alertScreen_mobilecontainer" name="mobilecontainer" class="alertScreen_mobilecontainer">
-                <!-- alert button -->
-                <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">ALERT</a>
-                <!-- alert button confirmation popup -->
-                <div data-role="popup" id="alertPopupDialog" data-dismissible="false" style="max-width:400px;">
-                    <div class="alert_popup_header_container" data-role="header" >
-                    <h1 class="alert_popup_header">Initiate Evacuation?</h1>
-                    </div>
-                    <div role="main" class="ui-content">
-                        <h3 class="alert_popup_msg ui-title">Alert all employees to evacuate</h3>
-                        <a href="#" class="cancel_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
-                        <a href="#" class="confirm_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Evacuate</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- all clear button container -->
-            <div data-role="content" id="all_clear_mobilecontainer" class="all_clear_mobilecontainer">
-                <!-- all clear button -->
-                <a href="#" data-role="button" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_allClear ui-nodisc-icon" data-corners="true" data-icon="check" data-iconpos="top" data-theme="b">All Clear!</a>
-            </div>
-        </div>
-
-        <!-- map page -->
-        <div data-role="page" id="wardenMap" class="type-interior">
-            <!-- main content -->
-            <div data-role="content" class="userDashboard_mobilecontainer">
-                <!-- header -->
-                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
-                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
-                    <h1>Dashboard</h1>
-                </div>
-                <!-- warden navbar -->
-                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar" id="warden_navbar">
-                        <ul>
-                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
-                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
-                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
-                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
-                            <li id="status_navbar_item"><a href="#status" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="user">Status</a></li>
-                         </ul>
-                    </div>
-                </div>
-                <!-- employee navbar 
-                <div data-role="footer" data-id="employee_footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar" id="warden_navbar">
-                        <ul>
-                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
-                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
-                            <li><a href="#status" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="user">Status</a></li>
-                         </ul>
-                    </div>
-                </div>-->
-
-                <!-- map tab -->
-                <div id="warden_map_content" class="content_div">
-                  <div id="map_canvas">
-                     <img id="static_map_img_warden"/>
-                  </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- compass page -->
-        <div data-role="page" id="wardenCompass" class="type-interior">
-            <!-- main content -->
-            <div data-role="content" class="userDashboard_mobilecontainer">
-                <!-- header -->
-                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
-                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
-                    <h1>Dashboard</h1>
-                </div>
-                <!-- warden navbar -->
-                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar" id="warden_navbar">
-                        <ul>
-                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
-                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="navigation">Compass</a></li>
-                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
-                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
-                         </ul>
-                    </div>
-                </div>
-                <!-- employee navbar 
-                <div data-role="footer" data-id="employee_footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar" id="warden_navbar">
-                        <ul>
-                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
-                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="navigation">Compass</a></li>
-                            <li><a href="#status" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="user">Status</a></li>
-                         </ul>
-                    </div>
-                </div>-->
-
-                <!-- compass tab -->
-                <div id="warden_compass_content" class="content_div">
-                    <div class="pointer"></div>
-                    <div class="distance_container"><p class="compass_distance"></p></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- warden dashboard personnel page -->
-        <div data-role="page" id="employees" class="type-interior">
-            <!-- main content for warden -->
-            <div data-role="content" class="userDashboard_mobilecontainer">
-                <!-- header -->
-                <div data-role="header" data-id="warden_header" data-position="fixed" data-theme="e">
-                    <a href="#alertScreen" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
-                    <h1>Dashboard</h1>
-                </div>
-                <!-- warden navbar -->
-                <div data-role="footer" data-id="warden_footer" data-position="fixed" data-theme="a">
-                    <div data-role="navbar" id="warden_navbar">
-                        <ul>
-                            <li><a href="#wardenMap" data-href="warden_map" class="warden_map ui-nodisc-icon" data-icon="location">Map</a></li>
-                            <li><a href="#wardenCompass" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
-                            <li><a href="#employees" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="user">Personnel</a></li>
-                            <li><a href="#broadcast_popup" data-href="warden_status" data-rel="dialog" data-transition="none" class="warden_status ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
-                         </ul>
-                    </div>
-                </div>
-
-                <!-- warden personnel tab -->
-                <div id="warden_personnel_content" class="content_div">
-                  <ul data-role="listview" class="ui-listview-outer">
-                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
-                      <h3>
-                         In Need of Assistance<span class="ui-li-count" id="need_assistance_counter"></span>
-                     </h3>
-                     <ul data-role="listview" data-inset="true" data-theme="c" id="need_assistance_employees"></ul>
-                    </li>
-                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="h">
-                      <h3>
-                         Not Checked In<span class="ui-li-count" id="not_checked_in_counter"></span>
-                     </h3>
-                     <ul data-role="listview" data-inset="true" data-theme="c" id="not_checked_in_employees"></ul>
-                    </li>
-                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
-                      <h3 id="checked_in_list_header">
-                         Checked In<span class="ui-li-count" id="checked_in_counter"></span>
-                     </h3>
-                     <ul data-role="listview" data-inset="true" data-theme="c" id="checked_in_employees"></ul>
-                    </li>
-                  </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Start of broadcast dialog popup page -->
-        <div data-role="page" id="broadcast_popup">
-            <!-- /header -->
-            <div data-role="header" data-position="fixed" data-theme="e">
-                    <h1>Broadcast</h1>
-                <a data-iconpos="notext" data-role="button" data-icon="flat-menu" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left"></a>
-            </div>
-            <!-- /content -->
-            <div role="main" class="ui-content">
-                <fieldset data-role="controlgroup" data-type="horizontal" class="broadcast_radio">
-                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="off" checked="checked">
-                    <label for="radio-choice-h-2a" class="broadcast_radio_label">All Employees</label>
-                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="on">
-                    <label for="radio-choice-h-2b" class="broadcast_radio_label">Evac Coordinators</label>
-                </fieldset>
-                <textarea name="textarea" id="textarea" class="broadcast_txtarea"></textarea>
-                <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-theme="e">Send</a>
-            </div>
-        </div><!-- /broadcast popup -->
+        <!--ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset
+        ui-btn ui-btn-e ui-shadow ui-corner-all
+        -->
+        
 
         <script src="js/main.js"></script>
         <script src="js/helper.js"></script>
