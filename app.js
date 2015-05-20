@@ -71,6 +71,7 @@ var activeUser = function(req, res) {
 		res.json(req.session.user);
 	}
 	else {
+		console.log('no logged in user found in session');
 		res.json({error: 'no active user found in session'});
 	}
 };
