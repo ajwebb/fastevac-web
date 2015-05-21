@@ -3,11 +3,6 @@
 .ui-icon-loading {
 	background: url("https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/images/ajax-loader.gif") repeat scroll 0 0 / 46px 46px transparent!important;
 }
-/* header 
-.login_screen_mobileheader {
-	border: none!important;
-	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
-}*/
 /* login_screen_logo_image */
 .login_screen_logo_image {
 	margin: 0 auto;
@@ -16,7 +11,6 @@
 	margin-bottom: 15px;
 }
 .login_container {
-	position: relative;
 	padding: 20px;
 }
 .login_form {
@@ -33,30 +27,11 @@
 	height: 46px;
 	font-size: 18px;
 }
-/*.login_button {
-	display: block;
-	padding-left: 0;
-	padding-right: 0;
-	padding-top: 10px;
-	padding-bottom: 10px;
-	font-size: 18px;
-	font-weight: bolder;
-	color: #333!important;
-	line-height: 1.33;
-	margin-bottom: 0;
-	text-align: center;
-	white-space: nowrap;
-	background-image: linear-gradient(#B0BCCD, #889BB3)!important;
-	border-color: transparent!important;
-	border: 1px solid transparent!important;
-	cursor: pointer;
-}*/
 .flip-remember-label {
 	font-weight: 700!important;
 	font-size: 14px!important;
 	width: 114px!important;
 }
-/*.ui-link {*/
 .help_link {
 	text-decoration: none;
 	background: transparent;

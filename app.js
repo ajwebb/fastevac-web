@@ -38,14 +38,14 @@ app.get('/', function(req, res) {
 });
 
 var authorizeLogin = function(req, res, next) {
-	console.log('email logging in as: ' + req.body.emailAddress);
+	var emailAddr = req.body.emailAddress;
+	console.log('email logging in as: ' + emailAddr);
 
 	var callback = function(err, user) {
 		if (!user) {
 			// no user found
 			console.log('No user found');
-			res.send(null);
-			// res.status(404).json('Invalid login: User not found');
+			res.json({error: 'no user exists by that email address'});
 		}
 		else {
 			if (user.coordinatorFlag == 1) {
@@ -57,18 +57,19 @@ var authorizeLogin = function(req, res, next) {
 			// adding user to session
 			req.session.user = user;
 			console.log('logged in as: ' + req.session.user.name);
-			return next();
+			res.json(req.session.user);
 		}
 	};
 
 	// get user data from mysql database
-	mysql.find_user(callback, req.body.emailAddress);
+	mysql.find_user(callback, emailAddr);
 };
 
 var activeUser = function(req, res) {
 	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
-		res.json(req.session.user);
+		res.json({user: req.session.user});
+		// res.json(req.session.user);
 	}
 	else {
 		console.log('no logged in user found in session');
@@ -158,7 +159,7 @@ var updateStatus = function(req, res, next) {
 
 // routes
 // user logging in from login page
-app.post('/login', authorizeLogin, renderPage);
+app.post('/login', authorizeLogin);
 
 // check user session
 app.get('/auth', activeUser);

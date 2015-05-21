@@ -62,16 +62,10 @@
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
-
-        <div class="header"></div>
-
-        <div id="content" class="container"></div>
-
-        <div id="footer"></div>
-
+    
         <!-- login form -->
         <script type="text/template" id="login_template">
-            
+            <div class="login_container">
                 <img class="login_screen_logo_image" src="img/logo_design_1_prototype.png" id="login_screen_logo_image" name="login_screen_logo_image" />
                 <form class="login_form">
                     <p class="login_error_message"></p>
@@ -97,17 +91,40 @@
                         <a href="http://fastevac.com" class="help_link">Help Center</a>
                     </div>
                 </form>
-            
+            </div>
         </script>
 
-        <!--ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset
-        ui-btn ui-btn-e ui-shadow ui-corner-all
+        <!-- evacuation alert page -->
+        <script type="text/template" id="evacuation_template">
+            <div data-role="header" data-position="fixed" data-theme="e">
+                <h1>Evacuation</h1>
+            </div>
+
+            <div data-role="content" id="alertScreen_mobilecontainer" name="mobilecontainer" class="alertScreen_mobilecontainer">
+                <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">ALERT</a>
+                <div data-role="popup" id="alertPopupDialog" data-dismissible="false" style="max-width:400px;">
+                    <div class="alert_popup_header_container" data-role="header" >
+                    <h1 class="alert_popup_header">Initiate Evacuation?</h1>
+                    </div>
+                    <div role="main" class="ui-content">
+                        <h3 class="alert_popup_msg ui-title">Alert all employees to evacuate</h3>
+                        <a href="#" class="cancel_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+                        <a href="#" class="confirm_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Evacuate</a>
+                    </div>
+                </div>
+            </div>
+
+        </script>
+        <!--
+        <div data-role="content" id="all_clear_mobilecontainer" class="all_clear_mobilecontainer">
+            <a href="#" data-role="button" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_allClear ui-nodisc-icon" data-corners="true" data-icon="check" data-iconpos="top" data-theme="b">All Clear!</a>
+        </div>
         -->
-        
 
         <script src="js/main.js"></script>
-        <script src="js/helper.js"></script>
+        <script src="js/module.js"></script>
         <script src="js/compass.js"></script>
+        <script src="js/helper.js"></script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <!--
