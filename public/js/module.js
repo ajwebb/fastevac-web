@@ -214,21 +214,21 @@ var Module = (function () {
         $('#checked_in_employees').empty();
 
         Module.employeeCollection.needAssistanceList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
+            var empView = new Views.EmployeeView({model: employee});
             $('#need_assistance_employees').append(empView.render().el);
         });
 
         Module.employeeCollection.notCheckedInList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
+            var empView = new Views.EmployeeView({model: employee});
             $('#not_checked_in_employees').append(empView.render().el);
         });
 
         Module.employeeCollection.checkedInList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
+            var empView = new Views.EmployeeView({model: employee});
             $('#checked_in_employees').append(empView.render().el);
         });
 
-        // var empListView = new EmployeeListView({collection: employeeCollection});
+        // var empListView = new Views.EmployeeListView({collection: employeeCollection});
         // $('#warden_personnel_content').html(empListView.render().el);
 
         $('#need_assistance_employees').listview().listview('refresh');
