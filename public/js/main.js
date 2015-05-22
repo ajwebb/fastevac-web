@@ -187,7 +187,8 @@
         initizlize: function() {},
 
         events: {
-            'click .confirm_alert': 'triggerAlert'
+            'click .confirm_alert': 'triggerAlert',
+            'click .alertScreen_mobilebutton_allClear': 'clearAlert'
         },
 
         triggerAlert: function(event) {
@@ -198,8 +199,19 @@
             // todo - send push notifications/txt messages to all employees
             // todo - initiate all employees as not checked in
 
+            // set company status to evacuation for session, todo - update db with current company status
+            Module.session.user.set({'companyStatus': 1});
+
             // navigate to user dashboard page
             Module.router.navigate('dashboard', {trigger: true});
+        },
+
+        clearAlert: function(event) {
+            console.log('clearing alert');
+
+            // set company status to all clear, todo - update db
+            Module.session.user.set({'companyStatus': 0});
+            Module.clearAlert();
         },
 
         render: function() {
@@ -470,6 +482,7 @@
             // render evacuation page
             console.log('router evac page function');
             this.show(new EvacuationView({}));
+            Module.configureAlertScreen();
         },
 
         dashboard: function() {
@@ -490,11 +503,6 @@
             $(window).on("throttledresize", Module.setStaticMap);
         }
     });
-
-
-
-
-
 
 
 

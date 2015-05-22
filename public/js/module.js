@@ -181,6 +181,27 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
+    function configureAlertScreen() {
+        if (Module.session && Module.session.user) {
+            if (Module.session.user.get('companyStatus') == 1) {
+                $('.alertScreen_mobilecontainer').hide();
+                $('.all_clear_mobilecontainer').show();
+            }
+            else {
+                $('.alertScreen_mobilecontainer').show();
+                $('.all_clear_mobilecontainer').hide();
+            }
+        }
+    }
+
+    function clearAlert() {
+        // show correct button
+        configureAlertScreen();
+        if (Module.session && Module.session.user) {
+            var allClearMessage = 'All Clear!';
+            socket.emit('broadcast', Module.session.user.get('name'), allClearMessage, Module.session.user.get('companyName'));
+        }
+    };
 
     // update lists of employees with their current status, for evac coordinator only
     function updatePersonnelInfo() {
@@ -214,49 +235,6 @@ var Module = (function () {
         $('#not_checked_in_employees').listview().listview('refresh');
         $('#checked_in_employees').listview().listview('refresh');
     };
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-
-
-    var currentUser; // deprecated
-
-    
-
-    function clearAlert() {
-        // show correct button
-        configureAlertScreen();
-        var allClearMessage = 'All Clear!';
-        socket.emit('broadcast', currentUser.name, allClearMessage, currentUser.companyName);
-    };
-
-
-    
-
-    function configureAlertScreen() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            if (currentUser.companyStatus == 1) {
-                $('.alertScreen_mobilecontainer').hide();
-                $('.all_clear_mobilecontainer').show();
-            }
-            else {
-                $('.alertScreen_mobilecontainer').show();
-                $('.all_clear_mobilecontainer').hide();
-            }
-        }
-    }
-
   
     return {
         router: router,
@@ -271,11 +249,6 @@ var Module = (function () {
         broadcastMessage: broadcastMessage,
         employeeUpdateStatus: employeeUpdateStatus,
         getStatusInfo: getStatusInfo,
-
-
-        
-        
-        
         configureAlertScreen: configureAlertScreen,
         clearAlert: clearAlert
     };
