@@ -308,5 +308,5 @@ var Views = (function() {
 		BroadcastView: BroadcastView,
 		EmployeeView: EmployeeView,
 		EmployeeListView: EmployeeListView
-	}
+	};
 })();

@@ -241,7 +241,7 @@ var Module = (function () {
         session: session,
         employeeCollection: employeeCollection,
         validateLoginForm: validateLoginForm,
-        routeLogin,
+        routeLogin: routeLogin,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
         joinCompanyRoom: joinCompanyRoom,
@@ -252,5 +252,4 @@ var Module = (function () {
         configureAlertScreen: configureAlertScreen,
         clearAlert: clearAlert
     };
-
 })();

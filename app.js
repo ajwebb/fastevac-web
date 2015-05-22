@@ -83,20 +83,16 @@ var authorizeWarden = function(req, res, next) {
 
 		if (req.session.user.coordinatorFlag != 1) {
 			console.log('not a coordinator');
-			res.send(null);
+			res.json({error: 'unauthorized user'});
 		}
 		else {
 			return next();
 		}
 	}
 	else {
-		res.send(null);
+		res.json({error: 'no user found in session'});
 	}
 }
-
-var renderPage = function(req, res) {
-	res.json(req.session.user);
-};
 
 var triggerAlert = function(req, res, next) {
 	// update mysql db as of now
@@ -173,10 +169,10 @@ app.get('/employees', getEmployeesData);
 app.get('/employee/:id', getEmployeeData);
 
 // user triggering an alert
-app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
+app.get('/triggerAlert', authorizeWarden, triggerAlert);
 
 // user triggering an alert
-app.get('/clearAlert', authorizeWarden, clearAlert, renderPage);
+app.get('/clearAlert', authorizeWarden, clearAlert);
 
 // not found error
 app.get('*', function(req, res) {

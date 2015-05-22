@@ -155,5 +155,5 @@ var Models = (function() {
         SessionModel: SessionModel,
         Employee: Employee,
         EmployeeCollection: EmployeeCollection
-    }
+    };
 })();

@@ -55,5 +55,5 @@ var WebRouter = (function() {
 
     return {
         Router: Router
-    }
+    };
 })();
