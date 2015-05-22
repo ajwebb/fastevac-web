@@ -62,6 +62,8 @@
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
+
+        <div data-role="page"></div>
     
         <!-- login form -->
         <script type="text/template" id="login_template">
@@ -104,7 +106,7 @@
                 <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">ALERT</a>
                 <div data-role="popup" id="alertPopupDialog" data-dismissible="false" style="max-width:400px;">
                     <div class="alert_popup_header_container" data-role="header" >
-                    <h1 class="alert_popup_header">Initiate Evacuation?</h1>
+                        <h1 class="alert_popup_header">Initiate Evacuation?</h1>
                     </div>
                     <div role="main" class="ui-content">
                         <h3 class="alert_popup_msg ui-title">Alert all employees to evacuate</h3>
@@ -121,6 +123,130 @@
         </div>
         -->
 
+        <!-- warden dashboard template -->
+        <script type="text/template" id="warden_dashboard_template">
+            <div data-role="content" class="userDashboard_mobilecontainer">
+                <!-- header -->
+                <div data-role="header" data-position="fixed" data-theme="e">
+                    <a href="#" data-iconpos="notext" data-role="button" data-icon="home" title="Home" class="dashboard_home_button">Home</a>
+                        <h1>Dashboard</h1>
+                    <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu"></a>-->
+                </div>
+                <!-- warden navbar -->
+                <div data-role="footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
+                        <ul>
+                            <li><a href="#" data-href="warden_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
+                            <li><a href="#" data-href="warden_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#" data-href="warden_personnel" class="warden_personnel ui-nodisc-icon" data-icon="user">Personnel</a></li>
+                            <li><a href="#" data-href="broadcast_popup" data-rel="dialog" data-transition="none" class="broadcast_popup ui-nodisc-icon" data-icon="comment">Broadcast</a></li>
+                         </ul>
+                    </div>
+                </div>
+
+                <!-- content tabs for user dashboard -->
+                <!-- warden map tab -->
+                <div id="warden_map_content" class="content_div">
+                  <div id="map_canvas">
+                    <img id="static_map_img_warden"/>
+                  </div>
+                </div>
+
+                <!-- warden compass tab -->
+                <div id="warden_compass_content" class="content_div">
+                    <div class="pointer"></div>
+                    <div class="distance_container"><p class="compass_distance"></p></div>
+                </div>
+
+                <!-- warden personnel tab -->
+                <div id="warden_personnel_content" class="content_div">
+                  <ul data-role="listview" class="ui-listview-outer">
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
+                      <h3>
+                         In Need of Assistance<span class="ui-li-count" id="need_assistance_counter"></span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c" id="need_assistance_employees"></ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="h">
+                      <h3>
+                         Not Checked In<span class="ui-li-count" id="not_checked_in_counter"></span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c" id="not_checked_in_employees"></ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="left" data-collapsed="false" data-theme="d">
+                      <h3 id="checked_in_list_header">
+                         Checked In<span class="ui-li-count" id="checked_in_counter"></span>
+                     </h3>
+                     <ul data-role="listview" data-inset="true" data-theme="c" id="checked_in_employees"></ul>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+        </script>
+        
+        <!-- broadcast dialog popup template -->
+        <script type="text/template" id="broadcast_popup_template">
+            <!-- header -->
+            <div data-role="header" data-position="fixed" data-theme="e">
+                    <h1>Broadcast</h1>
+                <a data-iconpos="notext" data-role="button" data-icon="flat-menu" href="#" data-direction="reverse" data-rel="back" class="cancel_broadcast ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-left"></a>
+            </div>
+            <!-- content -->
+            <div role="main" class="ui-content">
+                <fieldset data-role="controlgroup" data-type="horizontal" class="broadcast_radio">
+                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="off" checked="checked">
+                    <label for="radio-choice-h-2a" class="broadcast_radio_label">All Employees</label>
+                    <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="on">
+                    <label for="radio-choice-h-2b" class="broadcast_radio_label">Evac Coordinators</label>
+                </fieldset>
+                <textarea name="textarea" id="textarea" class="broadcast_txtarea"></textarea>
+                <a href="#" class="send_message ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-theme="e">Send</a>
+            </div>
+        </script><!-- /broadcast popup -->
+
+        <!-- employee dashboard template -->
+        <script type="text/template" id="employee_dashboard_template">
+            <div data-role="content" class="userDashboard_mobilecontainer">
+                <!-- header -->
+                <div data-role="header" data-position="fixed" data-theme="e">
+                        <h1>Dashboard</h1>
+                    <!--<a data-iconpos="notext" data-role="button" data-icon="flat-menu"></a>-->
+                </div>
+                <!-- employee navbar -->
+                <div data-role="footer" data-position="fixed" data-theme="a">
+                    <div data-role="navbar" id="warden_navbar">
+                        <ul>
+                            <li><a href="#" data-href="employee_map" class="warden_map ui-nodisc-icon ui-btn-active ui-state-persist" data-icon="location">Map</a></li>
+                            <li><a href="#" data-href="employee_compass" class="warden_compass ui-nodisc-icon" data-icon="navigation">Compass</a></li>
+                            <li><a href="#" data-href="employee_status" class="employee_status ui-nodisc-icon" data-icon="comment">Status</a></li>
+                         </ul>
+                    </div>
+                </div>
+
+                <!-- content tabs for user dashboard -->
+                <!-- warden map tab -->
+                <div id="employee_map_content" class="content_div">
+                  <div id="map_canvas">
+                    <img id="static_map_img_warden"/>
+                  </div>
+                </div>
+
+                <!-- warden compass tab -->
+                <div id="employee_compass_content" class="content_div">
+                    <div class="pointer"></div>
+                    <div class="distance_container"><p class="compass_distance"></p></div>
+                </div>
+
+                <!-- employee status -->
+                <div id="employee_status_content" class="content_div">
+                    <p class="evacuation_status_label"><strong>Evacuation Status: </strong><span class="evacuation_status_txt"></span></p>
+                    <p class="current_status_label"><strong>Current User Status: </strong><span class="current_status_txt"></span></p>
+                    <a href="#" data-role="button" class="check_in_button">Check In</a>
+                    <a href="#" data-role="button" class="need_assistance_button" data-theme="d">Help</a>
+                </div>
+            </div>
+        </script>
+        
         <script src="js/main.js"></script>
         <script src="js/module.js"></script>
         <script src="js/compass.js"></script>

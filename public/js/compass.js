@@ -12,7 +12,7 @@
         var calcDistanceTxt = 'Calculating distance...';
         $('.compass_distance').text(calcDistanceTxt);
 
-        rendezvousCoords = Module.getCoordinateInfo();
+        rendezvousCoords = Module.session.user.get('coordinates');
         getLocation();
 
         // Check for support for DeviceOrientation event
@@ -98,20 +98,19 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
-                    $.get('/updateStatus', {status: 1}, function(userData) {
-                        // Module.actionRequireLogin(Module.updateStatus, userData);
-                        console.log('User has reached the evacuation zone: ' + userData.name);
+                    console.log('User has reached the evacuation zone: ' + Module.session.user.get('name'));
 
-                        // notify user they have arrived at the evac point
-                        var arrEvacPtTxt = 'Arrived';
-                        $('.compass_distance').text(arrEvacPtTxt);
+                    Module.session.user.updateStatus(1);
 
-                        // clear watch
-                        navigator.geolocation.clearWatch(watchId);
-                    });
-                };
-                distance = Math.round(distance);
-                txtDistance = distance + ' ft';
+                    // notify user they have arrived at the evac point
+                    txtDistance = 'Arrived';
+
+                    navigator.geolocation.clearWatch(watchId);
+                }
+                else {
+                    distance = Math.round(distance);
+                    txtDistance = distance + ' ft';
+                }
             }
         }
         else {

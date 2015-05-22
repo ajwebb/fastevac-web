@@ -2,7 +2,6 @@
 /* alert screen mobileheader */
 .userDashboard_mobileheader {
 	border: none!important;
-	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
 }
 .ui-navbar {
 	height: 56px;
@@ -24,10 +23,10 @@
 .ui-navbar .ui-btn-active {
     background: #2ad !important;
 }
-/* content pages for dashboard 
-#warden_compass_content, #warden_personnel_content, #employee_status_content {
+/* content pages for dashboard */
+#warden_compass_content, #employee_compass_content, #warden_personnel_content, #employee_status_content, #broadcast_popup_content {
 	display: none;
-}*/
+}
 /* navbars 
 #warden_navbar, #employee_navbar {
 	display: none;

@@ -1,8 +1,5 @@
 var Module = (function () {
 
-
-
-
     var socket = io.connect();
 
     // socket events
@@ -15,14 +12,14 @@ var Module = (function () {
         getPersonnelInfo(); // refresh personnel list with updated statuses
     });
 
-
-    var currentUser;
-    var employeeCollection;
-
+    socket.on('company_status_update', function() {
+        // sync session with updated status of company
+    });
     
     var router;
     var session;
 
+    var employeeCollection;
 
     function validateLoginForm() {
         var email = $('#email').val();
@@ -55,149 +52,6 @@ var Module = (function () {
         // navigate to user dashboard page
         Module.router.navigate('dashboard', {trigger: true});
     };
-    
-
-
-    
-
-    
-
-    var userLogon = function(userData) {
-        if (userData === null || userData === '') {
-            // user not found - show error message
-            var loginErrorMsg = 'Invalid Login Credentials: User not found';
-            $('.login_error_message').text(loginErrorMsg);
-            $('.login_error_message').show();
-        }
-        else {
-            $('.login_error_message').hide();
-
-            // create new instance of current user model with logged in user data from db
-            currentUser = new User(userData);
-            // var currentUserView = new UserView({model: currentUser});
-
-            if (currentUser.get('coordinatorFlag') == 1) {
-                $.mobile.changePage('#alertScreen');
-            }
-            else {
-                $.mobile.changePage('#wardenMap');
-            }
-        }
-        $('form').trigger('reset');
-    };
-
-
-    // get employee information from the database and load the employees model
-    function getPersonnelInfo() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            if (currentUser.get('coordinatorFlag') == 1) {
-                employeeCollection = new EmployeeCollection();
-                employeeCollection.fetch({
-                    data: {
-                        coordinatorId: currentUser.get('id')
-                    },
-                    success: updatePersonnelInfo,
-                    error: function(e) {
-                        console.log('Error fetching employee data: ' + e);
-                    },
-                    complete: function(e) {
-                        console.log('Fetching employee data complete');
-                    }
-                });
-            }
-        }
-    };
-
-    // update lists of employees with their current status, for evac coordinator only
-    function updatePersonnelInfo() {
-        $('#need_assistance_counter').text(employeeCollection.needAssistanceCount());
-        $('#not_checked_in_counter').text(employeeCollection.notCheckedInCount());
-        $('#checked_in_counter').text(employeeCollection.checkedInCount());
-
-        $('#need_assistance_employees').empty();
-        $('#not_checked_in_employees').empty();
-        $('#checked_in_employees').empty();
-
-        employeeCollection.needAssistanceList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
-            $('#need_assistance_employees').append(empView.render().el);
-        });
-
-        employeeCollection.notCheckedInList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
-            $('#not_checked_in_employees').append(empView.render().el);
-        });
-
-        employeeCollection.checkedInList().forEach(function(employee) {
-            var empView = new EmployeeView({model: employee});
-            $('#checked_in_employees').append(empView.render().el);
-        });
-
-        // var empListView = new EmployeeListView({collection: employeeCollection});
-        // $('#warden_personnel_content').html(empListView.render().el);
-
-        $('#need_assistance_employees').listview().listview('refresh');
-        $('#not_checked_in_employees').listview().listview('refresh');
-        $('#checked_in_employees').listview().listview('refresh');
-    };
-
-    // get current user's coordinate information
-    function getCoordinateInfo() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            return currentUser.get('coordinates');
-        }
-        else {
-            return null;
-        }
-    };
-
-    
-
-    // validate fields on the login form
-    function validateLoginForm2() {
-        var email = $('#email').val(); // email from login form
-        if (email === '') {
-            // check if empty string
-            // var loginErrorMsg = 'Please enter a valid email address';
-            // $('.login_error_message').text(loginErrorMsg);
-            // $('.login_error_message').show();
-
-            // setting email for dev purposes only
-            email = 'awebbx@gmail.com';
-            $.post('/login', {emailAddress: email}, userLogon);
-        }
-        else {
-            // $.post('/login', {emailAddress: email}, validateLoginCredentials);
-            $.post('/login', {emailAddress: email}, userLogon);
-        }
-    };
-
-    // navigate to new page, login information is required
-    function actionRequireLogin(callback, userData) {
-        if (userData === null || userData === '') {
-            // no user data in session, log in again
-            document.getElementById('email').value = '';
-            $.mobile.changePage('#login_page', {allowSamePageTransition: 'true'});
-        }
-        else {
-            currentUser = new CurrentUserModel(userData);
-            if (!callback) {
-                return;
-            }
-            else {
-                callback();
-            }
-        }
-    }
-
-    
-
-    function clearAlert() {
-        // show correct button
-        configureAlertScreen();
-        var allClearMessage = 'All Clear!';
-        socket.emit('broadcast', currentUser.name, allClearMessage, currentUser.companyName);
-    };
 
     function setStaticMap() {
         var w = $(document).width();
@@ -223,22 +77,69 @@ var Module = (function () {
             z = 17;
             s = 2;
         }
-        var mapCoordinates = getCoordinateInfo();
-        if (typeof(mapCoordinates) !== 'undefined' && mapCoordinates !== null) {
-            if (mapCoordinates.length > 0) {
-                var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
-                for (i=1; i<mapCoordinates.length; i++) {
-                    if (i % 2 != 0) {
-                        mapImageURL += '&markers=color:green|';
+        if (Module.session.user) {
+            var mapCoordinates = Module.session.user.get('coordinates');
+            if (typeof(mapCoordinates) !== 'undefined' && mapCoordinates !== null) {
+                if (mapCoordinates.length > 0) {
+                    var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude;
+                    for (i=1; i<mapCoordinates.length; i++) {
+                        if (i % 2 != 0) {
+                            mapImageURL += '&markers=color:green|';
+                        }
+                        else {
+                            mapImageURL += '&markers=color:blue|';
+                        }
+                        mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
                     }
-                    else {
-                        mapImageURL += '&markers=color:blue|';
-                    }
-                    mapImageURL += mapCoordinates[i].latitude + ',' + mapCoordinates[i].longitude;
+                    mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
+                    $('#static_map_img_warden').attr('src', mapImageURL);
                 }
-                mapImageURL += '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
-                $('#static_map_img_warden').attr('src', mapImageURL);
             }
+        }
+    };
+
+    function joinCompanyRoom() {
+        if (Module.session.user) {
+            if (Module.session.user.get('adminRole') === 'warden') {
+                socket.emit('join', Module.session.get('user_id'), Module.session.user.get('companyName'), true);
+            }
+            else {
+                socket.emit('join', Module.session.get('user_id'), Module.session.user.get('companyName'), false);
+            }
+        }
+    };
+
+    // get employee information from the database and load the employees model
+    function getPersonnelInfo() {
+        if (Module.session.user && Module.session.user.get('adminRole') === 'warden') {
+            Module.employeeCollection.fetch({
+                data: {
+                    coordinatorId: Module.session.user.get('id')
+                },
+                success: updatePersonnelInfo,
+                error: function(e) {
+                    console.log('Error fetching employee data: ' + e);
+                },
+                complete: function(e) {
+                    console.log('Fetching employee data complete');
+                }
+            });
+        }
+    };
+
+    function broadcastMessage(message, wardensOnlyFlag) {
+        if (Module.session.user) {
+            var roomName = Module.session.user.get('companyName');
+            if (wardensOnlyFlag) {
+                roomName += '-wardens';
+            }
+            socket.emit('broadcast', Module.session.user.get('name'), message, roomName);
+        }
+    };
+
+    function employeeUpdateStatus(newStatus) {
+        if (Module.session && Module.session.user) {
+            socket.emit('update_status', Module.session.get('user_id'), Module.session.user.get('companyName'), newStatus);
         }
     };
 
@@ -246,25 +147,33 @@ var Module = (function () {
         var companyStatusTxt;
         var userStatusTxt;
 
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            if (currentUser.companyStatus == 1) {
-                companyStatusTxt = 'Proceed to Evacuation Zone';
-            }
-            else if (currentUser.companyStatus == 2) {
-                companyStatusTxt = 'Evacuation Drill';
-            }
-            else {
-                companyStatusTxt = 'Safe';
+        if (Module.session && Module.session.user) {
+            switch (Module.session.user.get('companyStatus')) {
+                case 1:
+                case '1':
+                    companyStatusTxt = 'Proceed to Evacuation Zone';
+                    break;
+                case 2:
+                case '2':
+                    companyStatusTxt = 'Evacuation Drill';
+                    break;
+                default:
+                    companyStatusTxt = 'Safe';
+                    break;
             }
 
-            if (currentUser.currentStatus == 1) {
-                userStatusTxt = 'Checked In';
-            }
-            else if (currentUser.currentStatus == 2) {
-                userStatusTxt = 'In Need of Assistance';
-            }
-            else {
-                userStatusTxt = 'Not Checked In';
+            switch (Module.session.user.get('status')) {
+                case 1:
+                case '1':
+                    userStatusTxt = 'Checked In';
+                    break;
+                case 2:
+                case '2':
+                    userStatusTxt = 'In Need of Assistance';
+                    break;
+                default:
+                    userStatusTxt = 'Not Checked In';
+                    break;
             }
         }
 
@@ -272,26 +181,68 @@ var Module = (function () {
         $('.current_status_txt').text(userStatusTxt);
     };
 
-    function broadcastMessage(message, wardensOnlyFlag) {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            var roomName = currentUser.companyName
-            if (wardensOnlyFlag) {
-                roomName += '-wardens';
-            }
-            socket.emit('broadcast', currentUser.name, message, roomName);
-        }
+
+    // update lists of employees with their current status, for evac coordinator only
+    function updatePersonnelInfo() {
+        $('#need_assistance_counter').text(Module.employeeCollection.needAssistanceCount());
+        $('#not_checked_in_counter').text(Module.employeeCollection.notCheckedInCount());
+        $('#checked_in_counter').text(Module.employeeCollection.checkedInCount());
+
+        $('#need_assistance_employees').empty();
+        $('#not_checked_in_employees').empty();
+        $('#checked_in_employees').empty();
+
+        Module.employeeCollection.needAssistanceList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#need_assistance_employees').append(empView.render().el);
+        });
+
+        Module.employeeCollection.notCheckedInList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#not_checked_in_employees').append(empView.render().el);
+        });
+
+        Module.employeeCollection.checkedInList().forEach(function(employee) {
+            var empView = new EmployeeView({model: employee});
+            $('#checked_in_employees').append(empView.render().el);
+        });
+
+        // var empListView = new EmployeeListView({collection: employeeCollection});
+        // $('#warden_personnel_content').html(empListView.render().el);
+
+        $('#need_assistance_employees').listview().listview('refresh');
+        $('#not_checked_in_employees').listview().listview('refresh');
+        $('#checked_in_employees').listview().listview('refresh');
     };
 
-    function joinCompanyRoom() {
-        if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
-            if (isCurrentUserWarden()) {
-                socket.emit('join', currentUser.id, currentUser.companyName, true);
-            }
-            else {
-                socket.emit('join', currentUser.id, currentUser.companyName, false);
-            }
-        }
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+    var currentUser; // deprecated
+
+    
+
+    function clearAlert() {
+        // show correct button
+        configureAlertScreen();
+        var allClearMessage = 'All Clear!';
+        socket.emit('broadcast', currentUser.name, allClearMessage, currentUser.companyName);
     };
+
+
+    
 
     function configureAlertScreen() {
         if (typeof(currentUser) !== 'undefined' && currentUser !== null) {
@@ -306,25 +257,27 @@ var Module = (function () {
         }
     }
 
-    // return this;
   
     return {
         router: router,
         session: session,
+        employeeCollection: employeeCollection,
         validateLoginForm: validateLoginForm,
         routeLogin,
         triggerAlert: triggerAlert,
-
         setStaticMap: setStaticMap,
-        getStatusInfo: getStatusInfo,
-        getCoordinateInfo: getCoordinateInfo,
-        broadcastMessage: broadcastMessage,
-        actionRequireLogin: actionRequireLogin,
-        getPersonnelInfo: getPersonnelInfo,
         joinCompanyRoom: joinCompanyRoom,
+        getPersonnelInfo: getPersonnelInfo,
+        broadcastMessage: broadcastMessage,
+        employeeUpdateStatus: employeeUpdateStatus,
+        getStatusInfo: getStatusInfo,
+
+
+        
+        
+        
         configureAlertScreen: configureAlertScreen,
         clearAlert: clearAlert
     };
 
 })();
-// });

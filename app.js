@@ -148,33 +148,23 @@ var getEmployeeData = function(req, res) {
 	mysql.get_employee_data(callback, employeeid);
 };
 
-var updateStatus = function(req, res, next) {
-	var newStatus = req.query.status;
-	if (newStatus !== req.session.user.status) {
-		mysql.update_user_status(req.session.user.id, newStatus);
-		req.session.user.status = newStatus;
+var updateStatus = function(req, res) {
+	if (req.session && req.session.user) {
+		mysql.update_user_status(req.params.id, req.body.status);
+		req.session.user.status = req.body.status;
+		res.json({user: req.session.user});
 	}
-	return next();
 };
 
 // routes
 // user logging in from login page
 app.post('/login', authorizeLogin);
 
+// user updating status
+app.put('/user/:id', updateStatus);
+
 // check user session
 app.get('/auth', activeUser);
-
-// navigate to alert page
-app.get('/alertPage', authorizeWarden, renderPage);
-
-// user triggering an alert
-app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
-
-// user triggering an alert
-app.get('/clearAlert', authorizeWarden, clearAlert, renderPage);
-
-// navigate to dashboard
-app.get('/dashboard', activeUser, renderPage);
 
 // get employee data from mysql database and todo-insert into redis cache
 app.get('/employees', getEmployeesData);
@@ -182,8 +172,11 @@ app.get('/employees', getEmployeesData);
 // get information for specific employee
 app.get('/employee/:id', getEmployeeData);
 
-// update employee status
-app.get('/updateStatus', activeUser, updateStatus, renderPage);
+// user triggering an alert
+app.get('/triggerAlert', authorizeWarden, triggerAlert, renderPage);
+
+// user triggering an alert
+app.get('/clearAlert', authorizeWarden, clearAlert, renderPage);
 
 // not found error
 app.get('*', function(req, res) {
