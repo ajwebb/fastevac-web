@@ -32,6 +32,11 @@
 	cursor: pointer;
 	text-shadow: none!important;
 }
+/* send broadcast button - hover */
+.send_message:hover {
+	background-color: #578893!important;
+	border-color: #578893!important;
+}
 /* broadcast radio button option */
 .broadcast_radio {
 	margin-bottom: 15px!important;

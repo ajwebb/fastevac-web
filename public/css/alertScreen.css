@@ -14,16 +14,21 @@
 }
 /* alert button container  */
 .alertScreen_mobilecontainer {
-	padding: 20px;
-	background-color: transparent;
-	height: 120px;
+	padding: 0;
+	/*background-color: transparent;
+	height: 400px;
 	margin: auto;
   	position: absolute;
-  	top: 0; left: 0; bottom: 0; right: 0;
+  	top: 0; left: 0; bottom: 0; right: 0;*/
 }
 /* mobilebutton_alert */
 .alertScreen_mobilebutton_alert {
 	background-image: linear-gradient(#B0BCCD, #889BB3);
+	border: 1px solid transparent!important;
+	font-size: 18px;
+}
+/* alert screen message button */
+.alertScreen_message_button {
 	border: 1px solid transparent!important;
 	font-size: 18px;
 }
@@ -51,3 +56,14 @@
 .alert_popup_msg {
 	text-align: center;
 }
+.confirm_alert:hover {
+	background: #c06964!important;
+	border-color: #c06964!important;
+}
+.cancel_alert:hover {
+	background-color: #1f8f67!important;
+	border-color: #1f8f67!important;
+}
+/*.ui-controlgroup-controls {
+	width: 100%;
+}*/

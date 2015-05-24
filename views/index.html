@@ -105,7 +105,54 @@
 
             <!-- alert button and popup containers -->
             <div data-role="content" id="alertScreen_mobilecontainer" name="mobilecontainer" class="alertScreen_mobilecontainer">
-                <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">ALERT</a>
+                <div class="ui-field-contain">
+                    <select name="select-native-4" id="select-native-4" data-theme="c">
+                        <option>Group Selection</option>
+                        <optgroup label="Group 1">
+                            <option value="1">The 1st Option</option>
+                            <option value="2">The 2nd Option</option>
+                            <option value="3">The 3rd Option</option>
+                            <option value="4">The 4th Option</option>
+                        </optgroup>
+                        <optgroup label="Group 2">
+                            <option value="5">The 5th Option</option>
+                            <option value="6">The 6th Option</option>
+                            <option value="7">The 7th Option</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="ui-field-contain">
+                    <select name="select-native-1" id="select-native-1" data-theme="c">
+                        <option value="1">Type of Alert</option>
+                        <option value="2">Evacuation</option>
+                        <option value="3">Earthquake</option>
+                        <option value="4">Fire</option>
+                        <option value="5">School Shooting</option>
+                    </select>
+                </div>
+
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">Alert</a>
+                        <div data-role="popup" id="alertPopupDialog" data-dismissible="false" style="max-width:400px;">
+                            <div class="alert_popup_header_container" data-role="header" >
+                            <h1 class="alert_popup_header">Initiate Evacuation?</h1>
+                            </div>
+                            <div role="main" class="ui-content">
+                                <h3 class="alert_popup_msg ui-title">Alert everyone to evacuate</h3>
+                                <a href="#" class="cancel_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+                                <a href="#" class="confirm_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Evacuate</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <a href="#broadcast_popup" data-role="button" data-rel="dialog" data-position-to="window" data-transition="pop" class="alertScreen_message_button ui-nodisc-icon" data-corners="true" data-icon="comment" data-iconpos="top" data-theme="g">Message</a>
+                    </div>
+                </div>
+
+                <!-- alert button 
+                <a href="#alertPopupDialog" data-role="button" data-rel="popup" data-position-to="window" data-transition="pop" class="alertScreen_mobilebutton_alert ui-nodisc-icon" data-corners="true" data-icon="alert" data-iconpos="top" data-theme="d">Alert</a>
                 <div data-role="popup" id="alertPopupDialog" data-dismissible="false" style="max-width:400px;">
                     <div class="alert_popup_header_container" data-role="header" >
                     <h1 class="alert_popup_header">Initiate Evacuation?</h1>
@@ -115,7 +162,11 @@
                         <a href="#" class="cancel_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
                         <a href="#" class="confirm_alert ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Evacuate</a>
                     </div>
-                </div>
+                </div>-->
+
+                <!-- message button 
+                <a href="#broadcast_popup" data-role="button" data-rel="dialog" data-position-to="window" data-transition="pop" class="alertScreen_message_button ui-nodisc-icon" data-corners="true" data-icon="comment" data-iconpos="top" data-theme="g">Message</a>
+            -->
             </div>
         </div>
 

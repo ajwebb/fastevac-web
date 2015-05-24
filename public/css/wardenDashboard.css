@@ -52,6 +52,11 @@
 	background-color: #166549!important;
 	border-color: #166549!important;
 }
+/* checked in list -> hover */
+#checked_in_list_header a:hover {
+	background-color: #1f8f67!important;
+	border-color: #1f8f67!important;
+}
 .ui-li-count {
 	border: none;
 }
