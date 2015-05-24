@@ -3,7 +3,6 @@ var app = express();
 
 // socket io test
 var server = require('http').createServer(app);
-var io = require('socket.io')(server);
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku

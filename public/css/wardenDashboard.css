@@ -2,7 +2,6 @@
 /* alert screen mobileheader */
 .userDashboard_mobileheader {
 	border: none!important;
-	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
 }
 .ui-navbar {
 	height: 56px;
@@ -27,9 +26,6 @@
 }
 .ui-navbar .ui-btn-active {
     background: #2ad !important;
-}
-#warden_compass_content, #warden_personnel_content, #employee_status_content {
-	display: none;
 }
 .userDashboard_mobilecontainer {
 	padding: 0;
@@ -76,13 +72,6 @@
 	font-size: 44px;
 	font-weight: bolder;
 }
-/*.n {
-    top: 20%;
-    left:50%;
-    position:absolute;
-    font:4em Helvetica;
-    margin: 0 0 0 -40px;
-}*/
 .check_in_button {
 	margin-right: 0;
 	margin-bottom: 20px;

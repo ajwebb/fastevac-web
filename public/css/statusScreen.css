@@ -2,7 +2,7 @@
 /* alert screen mobileheader */
 .broadcast_dialog_header {
 	border: none!important;
-	background: -webkit-linear-gradient(top, #b0bccd 0%,#889bb3 49%,#8094ae 50%,#6d84a2 100%)!important;
+	background-color: #457b87!important;
 }
 /* broadcast header cancel button */
 .broadcast_dialog_header a {
@@ -22,12 +22,11 @@
 	padding-bottom: 10px;
 	font-size: 18px;
 	font-weight: bolder;
-	color: #333!important;
 	line-height: 1.33;
 	margin: 0 auto;
 	text-align: center;
 	white-space: nowrap;
-	background-image: linear-gradient(#B0BCCD, #889BB3)!important;
+	background-color: #457b87!important;
 	border-color: transparent!important;
 	border: 1px solid transparent!important;
 	cursor: pointer;

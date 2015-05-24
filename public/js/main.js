@@ -4,9 +4,8 @@
 
 var Module = (function () {
 
-    var id, name, currentStatus, companyId, companyName, companyStatus;
-    var wardenFlag = false;
-    var mapCoordinates = [];
+    // var id, name, currentStatus, companyId, companyName, companyStatus;
+    // var mapCoordinates = [];
 
     // json for list of employees, todo - get data from database and parse as json object
     var jsonData = {
@@ -63,12 +62,12 @@ var Module = (function () {
         "coordinates":
         [
             {
-                "latitude": 33.750125,
-                "longitude": -117.837933
+                "latitude": 33.654320,
+                "longitude": -117.811969
             },
             {
-                "latitude": 33.750411,
-                "longitude": -117.838235
+                "latitude": 33.654320,
+                "longitude": -117.811969
             }
         ]
     };
@@ -76,7 +75,6 @@ var Module = (function () {
     // get all employees current info and status, update lists, for evac coordinator only
     function updatePersonnelInfo() {
         var employees = jsonData.employees;
-        sessionStorage.setItem('allEmployees', JSON.stringify(employees));
 
         var needAssistanceEmployees = [];
         var notCheckedInEmployees = [];
@@ -122,70 +120,25 @@ var Module = (function () {
         $('#checked_in_employees').listview('refresh');
     };
 
-    // map coordinates object
-    function Coordinates(latitude, longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    };
+    // var getUserDetails = function () {
+    //     // get data from json object, todo - create json object from data in database
+    //     id = currentUserJsonData.id;
+    //     name = currentUserJsonData.name;
+    //     wardenFlag = currentUserJsonData.wardenFlag;
+    //     companyId = currentUserJsonData.companyId;
+    //     companyName = currentUserJsonData.companyName;
+    //     companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
+    //     currentStatus = currentUserJsonData.status;
 
-    // determine if user is evac coordinator
-    function isCurrentUserWarden() {
-        wardenFlag = sessionStorage.getItem('wardenFlag');
-        if (typeof wardenFlag !== 'undefined') {
-            if (wardenFlag == true || wardenFlag === 'true') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    var getUserDetails = function () {
-        // get data from json object, todo - create json object from data in database
-        id = currentUserJsonData.id;
-        name = currentUserJsonData.name;
-        wardenFlag = currentUserJsonData.wardenFlag;
-        companyId = currentUserJsonData.companyId;
-        companyName = currentUserJsonData.companyName;
-        companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
-        currentStatus = currentUserJsonData.status;
-
-        // get map coordinates for facility/evac pts, facility being first, and evac points following
-        for (i=0; i<currentUserJsonData.coordinates.length; i++) {
-            var coords = new Coordinates(currentUserJsonData.coordinates[i].latitude, currentUserJsonData.coordinates[i].longitude)
-            mapCoordinates.push(coords);
-        };
-
-        sessionStorage.setItem('currentStatus', currentStatus);
-        sessionStorage.setItem('mapCoords', JSON.stringify(mapCoordinates));
-        sessionStorage.setItem('wardenFlag', wardenFlag);
-    };
-
-    var validateLoginCredentials = function () {
-        var validLogin = false;
-
-        // todo - get user details from db and authenticate properly
-        getUserDetails();
-        validLogin = true;
-
-        if (validLogin) {
-            if (wardenFlag) {
-                // todo - initiate employee lists for evac coordinator
-                $.mobile.changePage('#alertScreen');
-            }
-            else {
-                $.mobile.changePage('#userDashboard');
-            }
-        }
-        else {
-            alert('Invalid Login Credentials');
-        }
-
-    };
+    //     // get map coordinates for facility/evac pts, facility being first, and evac points following
+    //     for (i=0; i<currentUserJsonData.coordinates.length; i++) {
+    //         var coords = new Coordinates(currentUserJsonData.coordinates[i].latitude, currentUserJsonData.coordinates[i].longitude)
+    //         mapCoordinates.push(coords);
+    //     };
+    // };
 
     var triggerAlert = function () {
-        //todo - initiate alert for all employees (send push notifications or messages out)
-        companyStatus = 1; // 1 = alert
-        $.mobile.changePage('#userDashboard');
+        $.mobile.changePage('#warden_map');
     };
 
     var setStaticMap = function() {
@@ -212,132 +165,54 @@ var Module = (function () {
             z = 18;
             s = 2;
         }
-        mapCoordinates = JSON.parse(sessionStorage['mapCoords']);
+        var mapCoordinates = currentUserJsonData.coordinates;
         var mapImageURL = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + mapCoordinates[0].latitude + ',' + mapCoordinates[0].longitude + '&markers=color:green|' + mapCoordinates[1].latitude + ',' + mapCoordinates[1].longitude + '&zoom=' + z + '&scale=' + s + '&size=' + w + 'x' + h;
         $('#static_map_img_warden').attr('src', mapImageURL);
     };
-
-    var getStatusInfo = function() {
-        var companyStatusTxt;
-        var userStatusTxt;
-
-        if (companyStatus == 1) {
-            companyStatusTxt = 'Evacuate Facility';
-        }
-        else if (companyStatus == 2) {
-            companyStatusTxt = 'Evacuate Facility (Drill)';
-        }
-        else {
-            companyStatusTxt = 'Safe';
-        }
-
-        currentStatus = sessionStorage.getItem('currentStatus');
-        if (currentStatus == 1) {
-            userStatusTxt = 'Checked In';
-        }
-        else if (currentStatus == 2) {
-            userStatusTxt = 'In Need of Assistance';
-        }
-        else {
-            userStatusTxt = 'Not Checked In';
-        }
-
-        $('.evacuation_status_txt').text(companyStatusTxt);
-        $('.current_status_txt').text(userStatusTxt);
-    };
-
-    var updateStatus = function(updatedStatus) {
-        // 0 = normal/not checked in, 1 = checked in, 2 = need assistance
-        currentStatus = updatedStatus;
-        sessionStorage.setItem('currentStatus', currentStatus);
-        // todo - update db with updated status
-
-        getStatusInfo();
-    };
   
     return {
-        validateLoginCredentials: validateLoginCredentials,
         triggerAlert: triggerAlert,
         setStaticMap: setStaticMap,
-        isCurrentUserWarden: isCurrentUserWarden,
-        updatePersonnelInfo: updatePersonnelInfo,
-        updateStatus: updateStatus,
-        getStatusInfo: getStatusInfo
+        updatePersonnelInfo: updatePersonnelInfo
     };
 
 })();
 
 $(function(){
-    // create event for submitting login form
-    $("form").submit(function (event) {
+
+    $(document).on('click', '.confirm_alert', function(event) {
+        console.log('confirmed alert');
         event.stopPropagation();
         event.preventDefault();
-        Module.validateLoginCredentials();
-    });
-
-    // navigating to alert page for the first time, create events for initiating evacuation
-    $(document).on('pagecreate', '#alertScreen', function() {
-        console.log('alert page');
-    	$(document).on('click', '.confirm_alert', function(event) {
-    		console.log('confirmed alert');
-	        event.stopPropagation();
-	        event.preventDefault();
-            Module.triggerAlert();
-	    });
+        Module.triggerAlert();
     });
 
     // navigating to main warden page, initialize events for using the navbar
-    $(document).on('pagecreate', '#userDashboard', function(){
-        console.log('user dashboard');
-
-        // show correct navbar depending if warden or regular employee
-        if (Module.isCurrentUserWarden()) {
-            $('#employee_navbar').hide();
-            $('#warden_navbar').show();
-
-            // add employees to corresponding lists on personnel page
-            Module.updatePersonnelInfo();
-        }
-        else {
-            $('#warden_navbar').hide();
-            $('#employee_navbar').show();
-
-            // set current evacuation procedure and user status
-            Module.getStatusInfo();
-        }
+    $(document).on('pagecreate', '#warden_map', function(){
+        console.log('map page');
 
         Module.setStaticMap();
 
         // need to resize map on device orientation change
         $( window ).on( "throttledresize", Module.setStaticMap );
+    });
+
+    $(document).on('pagecreate', '#warden_compass', function(){
+        console.log('compass page');
 
         // initialize compass
         Compass.initCompass();
+    });
 
-        // user clicks on the navbar, hide the currently selected tab content and show the content for the newly selected tab
-        $(document).on('click', '.ui-navbar a', function(event)
-        {
-            console.log('navbar menu item clicked');
-            $('.content_div').hide();
-            $('#' + $(this).attr('data-href') + '_content').show();
-        });
+    $(document).on('pagecreate', '#warden_personnel', function(){
+        console.log('personnel page');
 
-        // specific pages click events - nothing specific implemented as of now
-        $(document).on('click', '.warden_map', function(event) {
-            console.log('navigated to map');
-        });
+        // initialize personnel lists
+        Module.updatePersonnelInfo();
+    });
 
-        $(document).on('click', '.warden_compass', function(event) {
-            console.log('navigated to compass');
-        });
-
-        $(document).on('click', '.warden_personnel', function(event) {
-            console.log('navigated to personnel');
-        });
-
-        $(document).on('click', '.employee_status', function(event) {
-            console.log('navigated to employee status page');
-        });
+    $(document).on('pagecreate', '#broadcast_popup', function(){
+        console.log('broadcast dialog');
 
         // sends broadcast, show map tab, todo - should show last visited tab
         $(document).on('click', '.send_message', function(event)
@@ -353,28 +228,5 @@ $(function(){
             console.log('broadcast canceled');
             $('#' + 'warden_map_content').show();
         });
-
-        // user checks in
-        $(document).on('click', '.check_in_button', function(event)
-        {
-            console.log('user checking in');
-            Module.updateStatus(1);
-        });
-
-        // user needs assistance
-        $(document).on('click', '.need_assistance_button', function(event)
-        {
-            console.log('user needs assistance');
-            Module.updateStatus(2);
-        });
     });
-
-    // click broadcast message popup, focus textarea
-    $(document).on('pageshow', '#broadcast_popup', function(){
-        console.log('broadcast message');
-        $('#textarea').focus();
-    });
-
-    // BEGIN TESTING SECTION
-    // END TESTING SECTION
 });
