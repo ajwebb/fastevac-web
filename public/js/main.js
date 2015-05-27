@@ -4,10 +4,7 @@
 
 var Module = (function () {
 
-    // var id, name, currentStatus, companyId, companyName, companyStatus;
-    // var mapCoordinates = [];
-
-    // json for list of employees, todo - get data from database and parse as json object
+    // json for list of employees
     var jsonData = {
         "employees":
         [
@@ -72,7 +69,7 @@ var Module = (function () {
         ]
     };
 
-    // get all employees current info and status, update lists, for evac coordinator only
+    // get all employees current info and status and update the ui
     function updatePersonnelInfo() {
         var employees = jsonData.employees;
 
@@ -119,23 +116,6 @@ var Module = (function () {
         $('#not_checked_in_employees').listview('refresh');
         $('#checked_in_employees').listview('refresh');
     };
-
-    // var getUserDetails = function () {
-    //     // get data from json object, todo - create json object from data in database
-    //     id = currentUserJsonData.id;
-    //     name = currentUserJsonData.name;
-    //     wardenFlag = currentUserJsonData.wardenFlag;
-    //     companyId = currentUserJsonData.companyId;
-    //     companyName = currentUserJsonData.companyName;
-    //     companyStatus = currentUserJsonData.companyStatus; // 0 = normal, 1 = alert, 2 = drill
-    //     currentStatus = currentUserJsonData.status;
-
-    //     // get map coordinates for facility/evac pts, facility being first, and evac points following
-    //     for (i=0; i<currentUserJsonData.coordinates.length; i++) {
-    //         var coords = new Coordinates(currentUserJsonData.coordinates[i].latitude, currentUserJsonData.coordinates[i].longitude)
-    //         mapCoordinates.push(coords);
-    //     };
-    // };
 
     var triggerAlert = function () {
         $.mobile.changePage('#warden_map');
@@ -187,13 +167,14 @@ $(function(){
         Module.triggerAlert();
     });
 
-    // navigating to main warden page, initialize events for using the navbar
+    // navigating to map page, initialize map and broadcast events
     $(document).on('pagecreate', '#warden_map', function(){
         console.log('map page');
 
+        // initialize map
         Module.setStaticMap();
 
-        // need to resize map on device orientation change
+        // resize map on device orientation change
         $( window ).on( "throttledresize", Module.setStaticMap );
     });
 
@@ -214,15 +195,14 @@ $(function(){
     $(document).on('pagecreate', '#broadcast_popup', function(){
         console.log('broadcast dialog');
 
-        // sends broadcast, show map tab, todo - should show last visited tab
+        // send broadcast
         $(document).on('click', '.send_message', function(event)
         {
-            // todo - send message to employees
             console.log('broadcast sent');
             $('#' + 'warden_map_content').show();
         });
 
-        // cancels broadcast, show map tab, todo - should show last visited tab
+        // cancel broadcast
         $(document).on('click', '.cancel_broadcast', function(event)
         {
             console.log('broadcast canceled');
