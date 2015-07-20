@@ -1,0 +1,28 @@
+<!-- login form -->
+<div data-role="content" class="login_container ui-corner-all" id="login_container">
+    <img class="login_screen_logo_image" src="img/logo_design_1_prototype.png" id="login_screen_logo_image" name="login_screen_logo_image" />
+    <form class="login_form">
+        <p class="login_error_message"></p>
+        <div class="form-group">
+            <input type="text" class="form-input" placeholder="Email" name="login_email" id="email">
+        </div>
+        <div class="form-group" id="form-password">
+            <input type="password" class="form-input" placeholder="Password" name="login_password">
+        </div>
+        <div class="form-group">
+            <div data-role="fieldcontain">
+            <label for="flip-remember" class="flip-remember-label">Remember me:</label>
+                <select name="flip-remember" id="flip-remember" class="flip-remember" data-role="slider" data-theme="c">
+                    <option value="no">No</option>
+                    <option value="yes" selected>Yes</option>
+                </select> 
+            </div>
+        </div>
+        <div class="form-group" id="button_container">
+            <button type="submit" class="login_button" data-theme="e">Sign In</button>
+        </div>
+        <div class="form-group">
+            <a href="http://fastevac.com" class="help_link">Help Center</a>
+        </div>
+    </form>
+</div>

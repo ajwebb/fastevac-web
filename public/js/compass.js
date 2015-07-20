@@ -12,7 +12,7 @@
         var calcDistanceTxt = 'Calculating distance...';
         $('.compass_distance').text(calcDistanceTxt);
 
-        rendezvousCoords = Module.getCoordinateInfo();
+        rendezvousCoords = Module.session.user.get('coordinates');
         getLocation();
 
         // Check for support for DeviceOrientation event
@@ -98,6 +98,7 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
+<<<<<<< HEAD
                     Module.updateStatus(1);
 
                     console.log('User has reached the evacuation zone');
@@ -107,6 +108,15 @@
                     $('.compass_distance').text(arrEvacPtTxt);
 
                     // clear watch
+=======
+                    console.log('User has reached the evacuation zone: ' + Module.session.user.get('name'));
+
+                    Module.session.user.updateStatus(1);
+
+                    // notify user they have arrived at the evac point
+                    txtDistance = 'Arrived';
+
+>>>>>>> origin/backbone
                     navigator.geolocation.clearWatch(watchId);
                 }
                 else {

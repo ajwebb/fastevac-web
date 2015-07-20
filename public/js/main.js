@@ -1,7 +1,8 @@
 /*
- * JS for app 
+ * Main JS for app - initialize the application
  */
 
+<<<<<<< HEAD
 var Module = (function () {
 
     var socket = io.connect();
@@ -311,19 +312,16 @@ var Module = (function () {
 
 })();
 
+=======
+>>>>>>> origin/backbone
 $(function(){
-    // create event for submitting login form
-    $('form').submit(function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var email = $('#email').val(); // email from login form
-        if (email === '') {
-            // setting email for dev purposes only
-            email = 'awebbx@gmail.com';
-        }
-        $.post('/login', {emailAddress: email}, Module.validateLoginCredentials);
+    // delegate routing to backbone instead of jquery
+    $(document).bind("mobileinit", function(){
+        $.mobile.hashListeningEnabled = false;
+        $.mobile.linkBindingEnabled = false;
     });
 
+<<<<<<< HEAD
     // navigating to alert page for the first time, create events for initiating evacuation
     $(document).on('pagecreate', '#alertScreen', function() {
         console.log('alert page');
@@ -452,14 +450,20 @@ $(function(){
             console.log('user dashboard beforeshow event');
         }
     });
+=======
+    // remove the previous page from html
+    $(document).on('pagehide', function (event) {
+        console.log('document page hide event');
+        $(event.target).remove();
+    });
 
-    // page container show events
-    $(document).on("pagecontainershow", function () {
-        var activePage = $.mobile.pageContainer.pagecontainer("getActivePage");
-        var activePageId = activePage[0].id;
-        if (activePageId === 'broadcast_popup') {
-            console.log('broadcast popup clicked');
-            // $('#textarea').focus();  // removing because textarea focus causing issues on mobile safari
-        }
+    Module.router = new WebRouter.Router();
+    Module.session = new Models.SessionModel({});
+>>>>>>> origin/backbone
+
+    // check if user session exists
+    Module.session.checkAuth(function() {
+        console.log('backbone history starting');
+        Backbone.history.start();
     });
 });
