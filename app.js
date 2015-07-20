@@ -50,17 +50,10 @@ var authorizeLogin = function(req, res, next) {
 		}
 		else {
 			if (user.coordinatorFlag == 1) {
-<<<<<<< HEAD
-				user.role = 'warden';
-			}
-			else {
-				user.role = 'employee';
-=======
 				user.adminRole = 'warden';
 			}
 			else {
 				user.adminRole = 'employee';
->>>>>>> origin/backbone
 			}
 			// adding user to session
 			req.session.user = user;
@@ -73,19 +66,6 @@ var authorizeLogin = function(req, res, next) {
 	mysql.find_user(callback, emailAddr);
 };
 
-<<<<<<< HEAD
-var requireWardenRole = function(req, res, next) {
-	if (req.session && req.session.user) {
-		if (req.session.user.role === 'warden') {
-			return next();
-		}
-		else {
-			res.sendStatus(403);
-		}
-	}
-	else {
-		res.sendStatus(403);
-=======
 var activeUser = function(req, res) {
 	if (req.session && req.session.user) {
 		console.log('logged in user: ' + req.session.user.name);
@@ -95,33 +75,23 @@ var activeUser = function(req, res) {
 	else {
 		console.log('no logged in user found in session');
 		res.json({error: 'no active user found in session'});
->>>>>>> origin/backbone
 	}
 }
 
 var requireEmployeeRole = function(req, res, next) {
 	if (req.session && req.session.user) {
-<<<<<<< HEAD
-		if (req.session.user.role === 'warden' || req.session.user.role === 'employee') {
-			return next();
-=======
 		console.log('logged in user: ' + req.session.user.name);
 
 		if (req.session.user.coordinatorFlag != 1) {
 			console.log('not a coordinator');
 			res.json({error: 'unauthorized user'});
->>>>>>> origin/backbone
 		}
 		else {
 			res.sendStatus(403);
 		}
 	}
 	else {
-<<<<<<< HEAD
-		res.sendStatus(403);
-=======
 		res.json({error: 'no user found in session'});
->>>>>>> origin/backbone
 	}
 }
 
@@ -178,56 +148,28 @@ var getEmployeeData = function(req, res) {
 	mysql.get_employee_data(callback, employeeid);
 };
 
-<<<<<<< HEAD
-var updateStatus = function(req, res, next) {
-	var newStatus = req.query.status;
-	mysql.update_user_status(req.session.user.id, newStatus);
-	req.session.user.status = newStatus;
-	return next();
-=======
 var updateStatus = function(req, res) {
 	if (req.session && req.session.user) {
 		mysql.update_user_status(req.params.id, req.body.status);
 		req.session.user.status = req.body.status;
 		res.json({user: req.session.user});
 	}
->>>>>>> origin/backbone
 };
 
 // routes
 // user logging in from login page
 app.post('/login', authorizeLogin);
 
-<<<<<<< HEAD
-// navigate to alert page
-app.get('/alertPage', requireWardenRole, renderPage);
-
-// user triggering an alert
-app.get('/triggerAlert', requireWardenRole, triggerAlert, renderPage);
-
-// user triggering an alert
-app.get('/clearAlert', requireWardenRole, clearAlert, renderPage);
-=======
 // user updating status
 app.put('/user/:id', updateStatus);
 
 // check user session
 app.get('/auth', activeUser);
->>>>>>> origin/backbone
 
 // get employee data from mysql database and todo-insert into redis cache
 app.get('/employees', requireWardenRole, getEmployeesData);
 
 // get information for specific employee
-<<<<<<< HEAD
-app.get('/employees/:id', requireWardenRole, getEmployeeData);
-
-// navigate to dashboard
-app.get('/dashboard', requireEmployeeRole, renderPage);
-
-// update employee status
-app.get('/updateStatus', requireEmployeeRole, updateStatus, renderPage);
-=======
 app.get('/employee/:id', getEmployeeData);
 
 // user triggering an alert
@@ -235,7 +177,6 @@ app.get('/triggerAlert', authorizeWarden, triggerAlert);
 
 // user triggering an alert
 app.get('/clearAlert', authorizeWarden, clearAlert);
->>>>>>> origin/backbone
 
 // not found error
 app.get('*', function(req, res) {

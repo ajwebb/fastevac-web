@@ -98,17 +98,7 @@
             else {
                 if (distance < 25) {
                     // automatic checkin occurs within 25 feet
-<<<<<<< HEAD
-                    Module.updateStatus(1);
 
-                    console.log('User has reached the evacuation zone');
-
-                    // indicate user has arrived at the evac point
-                    var arrEvacPtTxt = 'Arrived';
-                    $('.compass_distance').text(arrEvacPtTxt);
-
-                    // clear watch
-=======
                     console.log('User has reached the evacuation zone: ' + Module.session.user.get('name'));
 
                     Module.session.user.updateStatus(1);
@@ -116,7 +106,6 @@
                     // notify user they have arrived at the evac point
                     txtDistance = 'Arrived';
 
->>>>>>> origin/backbone
                     navigator.geolocation.clearWatch(watchId);
                 }
                 else {
